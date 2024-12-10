@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_dut_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_dut" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="1,099.278 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,616.535 ns"></ZoomEndTime>
+      <Cursor1Time time="1,342.023 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="264"></NameColumnWidth>
+      <ValueColumnWidth column_width="144"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="11" />
+   <wvobject fp_name="divider466" type="divider">
+      <obj_property name="label">Testbench</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_dut/dut_inst/en_core">
+      <obj_property name="ElementShortName">en_core</obj_property>
+      <obj_property name="ObjectShortName">en_core</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_dut/dut_inst/ps_rd_events_size">
+      <obj_property name="ElementShortName">ps_rd_events_size[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ps_rd_events_size[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/tb_dut/dut_inst/pl_wr_events_size">
+      <obj_property name="ElementShortName">pl_wr_events_size[31:0]</obj_property>
+      <obj_property name="ObjectShortName">pl_wr_events_size[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/ts_tick">
+      <obj_property name="ElementShortName">ts_tick</obj_property>
+      <obj_property name="ObjectShortName">ts_tick</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider466" type="divider">
+      <obj_property name="label">Data Stream from PS to PL</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group82">
+      <obj_property name="label">stream ps to pl</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="divider468" type="divider">
+         <obj_property name="label">AXIS from PS</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_aclk">
+         <obj_property name="ElementShortName">s_axis_spk_in_aclk</obj_property>
+         <obj_property name="ObjectShortName">s_axis_spk_in_aclk</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_aresetn">
+         <obj_property name="ElementShortName">s_axis_spk_in_aresetn</obj_property>
+         <obj_property name="ObjectShortName">s_axis_spk_in_aresetn</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tready">
+         <obj_property name="ElementShortName">s_axis_spk_in_tready</obj_property>
+         <obj_property name="ObjectShortName">s_axis_spk_in_tready</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tdata">
+         <obj_property name="ElementShortName">s_axis_spk_in_tdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">s_axis_spk_in_tdata[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tlast">
+         <obj_property name="ElementShortName">s_axis_spk_in_tlast</obj_property>
+         <obj_property name="ObjectShortName">s_axis_spk_in_tlast</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tvalid">
+         <obj_property name="ElementShortName">s_axis_spk_in_tvalid</obj_property>
+         <obj_property name="ObjectShortName">s_axis_spk_in_tvalid</obj_property>
+      </wvobject>
+      <wvobject fp_name="divider468" type="divider">
+         <obj_property name="label">CDC Native FIFO</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/clk_axi">
+         <obj_property name="ElementShortName">clk_axi</obj_property>
+         <obj_property name="ObjectShortName">clk_axi</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_din">
+         <obj_property name="ElementShortName">fifo_cdc_din[31:0]</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_din[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_wr_en">
+         <obj_property name="ElementShortName">fifo_cdc_wr_en</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_wr_en</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_rd_en">
+         <obj_property name="ElementShortName">fifo_cdc_rd_en</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_rd_en</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_dout">
+         <obj_property name="ElementShortName">fifo_cdc_dout[31:0]</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_dout[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_full">
+         <obj_property name="ElementShortName">fifo_cdc_full</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_full</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_empty">
+         <obj_property name="ElementShortName">fifo_cdc_empty</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_empty</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_wr_data_count">
+         <obj_property name="ElementShortName">fifo_cdc_wr_data_count[9:0]</obj_property>
+         <obj_property name="ObjectShortName">fifo_cdc_wr_data_count[9:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="divider468" type="divider">
+         <obj_property name="label">Native stream to PL (@ts)</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/clk_pl">
+         <obj_property name="ElementShortName">clk_pl</obj_property>
+         <obj_property name="ObjectShortName">clk_pl</obj_property>
+      </wvobject>
+      <wvobject type="other" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fsm_decode_spk_stream">
+         <obj_property name="ElementShortName">fsm_decode_spk_stream</obj_property>
+         <obj_property name="ObjectShortName">fsm_decode_spk_stream</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/rdy_events">
+         <obj_property name="ElementShortName">rdy_events</obj_property>
+         <obj_property name="ObjectShortName">rdy_events</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/ts_event">
+         <obj_property name="ElementShortName">ts_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">ts_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/nb_event">
+         <obj_property name="ElementShortName">nb_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">nb_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/id_event">
+         <obj_property name="ElementShortName">id_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">id_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider466" type="divider">
+      <obj_property name="label">Blackbox Processing</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group107">
+      <obj_property name="label">blackbox_proc</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/clk_pl">
+         <obj_property name="ElementShortName">clk_pl</obj_property>
+         <obj_property name="ObjectShortName">clk_pl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/srst_pl">
+         <obj_property name="ElementShortName">srst_pl</obj_property>
+         <obj_property name="ObjectShortName">srst_pl</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/raw_rdy_in_events">
+         <obj_property name="ElementShortName">raw_rdy_in_events</obj_property>
+         <obj_property name="ObjectShortName">raw_rdy_in_events</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/raw_ts_event">
+         <obj_property name="ElementShortName">raw_ts_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">raw_ts_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/raw_nb_event">
+         <obj_property name="ElementShortName">raw_nb_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">raw_nb_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/raw_id_event">
+         <obj_property name="ElementShortName">raw_id_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">raw_id_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/new_rdy_in_events">
+         <obj_property name="ElementShortName">new_rdy_in_events</obj_property>
+         <obj_property name="ObjectShortName">new_rdy_in_events</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/new_ts_event">
+         <obj_property name="ElementShortName">new_ts_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">new_ts_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/new_nb_event">
+         <obj_property name="ElementShortName">new_nb_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">new_nb_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/new_id_event">
+         <obj_property name="ElementShortName">new_id_event[31:0]</obj_property>
+         <obj_property name="ObjectShortName">new_id_event[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider466" type="divider">
+      <obj_property name="label">Data stream from PL to PS</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group356">
+      <obj_property name="label">stream pl to ps</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="divider468" type="divider">
+         <obj_property name="label">Native stream from PL (@ts)</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="group" fp_name="group170">
+         <obj_property name="label">native_stream_from_pl</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/clk_pl">
+            <obj_property name="ElementShortName">clk_pl</obj_property>
+            <obj_property name="ObjectShortName">clk_pl</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/srst_pl">
+            <obj_property name="ElementShortName">srst_pl</obj_property>
+            <obj_property name="ObjectShortName">srst_pl</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/new_rdy_in_events">
+            <obj_property name="ElementShortName">new_rdy_in_events</obj_property>
+            <obj_property name="ObjectShortName">new_rdy_in_events</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/new_ts_event">
+            <obj_property name="ElementShortName">new_ts_event[31:0]</obj_property>
+            <obj_property name="ObjectShortName">new_ts_event[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/new_nb_event">
+            <obj_property name="ElementShortName">new_nb_event[31:0]</obj_property>
+            <obj_property name="ObjectShortName">new_nb_event[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/blackbox_inst/new_id_event">
+            <obj_property name="ElementShortName">new_id_event[31:0]</obj_property>
+            <obj_property name="ObjectShortName">new_id_event[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="divider469" type="divider">
+         <obj_property name="label">Buffer CDC FIFO</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="group" fp_name="group169">
+         <obj_property name="label">buffer_cdc_fifo</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/blackbox_inst/clk_pl">
+            <obj_property name="ElementShortName">clk_pl</obj_property>
+            <obj_property name="ObjectShortName">clk_pl</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_din">
+            <obj_property name="ElementShortName">cdc_fifo_din[31:0]</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_din[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_wr_en">
+            <obj_property name="ElementShortName">cdc_fifo_wr_en</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_wr_en</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_rd_en">
+            <obj_property name="ElementShortName">cdc_fifo_rd_en</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_rd_en</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_dout">
+            <obj_property name="ElementShortName">cdc_fifo_dout[31:0]</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_dout[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_full">
+            <obj_property name="ElementShortName">cdc_fifo_full</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_full</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_almost_full">
+            <obj_property name="ElementShortName">cdc_fifo_almost_full</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_almost_full</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_overflow">
+            <obj_property name="ElementShortName">cdc_fifo_overflow</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_overflow</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_empty">
+            <obj_property name="ElementShortName">cdc_fifo_empty</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_empty</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_wr_rst_busy">
+            <obj_property name="ElementShortName">cdc_fifo_wr_rst_busy</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_wr_rst_busy</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/cdc_fifo_rd_rst_busy">
+            <obj_property name="ElementShortName">cdc_fifo_rd_rst_busy</obj_property>
+            <obj_property name="ObjectShortName">cdc_fifo_rd_rst_busy</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="divider470" type="divider">
+         <obj_property name="label">Event count</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="group" fp_name="group156">
+         <obj_property name="label">PS read operation</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/clk_axi">
+            <obj_property name="ElementShortName">clk_axi</obj_property>
+            <obj_property name="ObjectShortName">clk_axi</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/en_ps_rd_events">
+            <obj_property name="ElementShortName">en_ps_rd_events</obj_property>
+            <obj_property name="ObjectShortName">en_ps_rd_events</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/ps_rd_events_size">
+            <obj_property name="ElementShortName">ps_rd_events_size[31:0]</obj_property>
+            <obj_property name="ObjectShortName">ps_rd_events_size[31:0]</obj_property>
+         </wvobject>
+         <wvobject type="other" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/fsm_sync_ps_read_cnt">
+            <obj_property name="ElementShortName">fsm_sync_ps_read_cnt</obj_property>
+            <obj_property name="ObjectShortName">fsm_sync_ps_read_cnt</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/synced_ps_rd_events_size">
+            <obj_property name="ElementShortName">synced_ps_rd_events_size[31:0]</obj_property>
+            <obj_property name="ObjectShortName">synced_ps_rd_events_size[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject type="group" fp_name="group157">
+         <obj_property name="label">PL write status</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/clk_pl">
+            <obj_property name="ElementShortName">clk_pl</obj_property>
+            <obj_property name="ObjectShortName">clk_pl</obj_property>
+         </wvobject>
+         <wvobject type="other" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/fsm_count_events">
+            <obj_property name="ElementShortName">fsm_count_events</obj_property>
+            <obj_property name="ObjectShortName">fsm_count_events</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/pl_ev_cnt_cur_ts">
+            <obj_property name="ElementShortName">pl_ev_cnt_cur_ts[31:0]</obj_property>
+            <obj_property name="ObjectShortName">pl_ev_cnt_cur_ts[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/pl_wr_events_size">
+            <obj_property name="ElementShortName">pl_wr_events_size[31:0]</obj_property>
+            <obj_property name="ObjectShortName">pl_wr_events_size[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="divider470" type="divider">
+         <obj_property name="label">CDC FIFO to MAXIS -&gt; S2MM DMA</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="BkColor">#FAAFBE</obj_property>
+      </wvobject>
+      <wvobject type="group" fp_name="group455">
+         <obj_property name="label">MAXIS RTL</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject type="other" fp_name="/tb_dut/gen_emu_ps_read_dma/fsm_ps_read_dma">
+            <obj_property name="ElementShortName">fsm_ps_read_dma</obj_property>
+            <obj_property name="ObjectShortName">fsm_ps_read_dma</obj_property>
+         </wvobject>
+         <wvobject type="other" fp_name="/tb_dut/gen_emu_ps_read_dma/cnt_dma_read">
+            <obj_property name="ElementShortName">cnt_dma_read</obj_property>
+            <obj_property name="ObjectShortName">cnt_dma_read</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/en_ps_rd_events">
+            <obj_property name="ElementShortName">en_ps_rd_events</obj_property>
+            <obj_property name="ObjectShortName">en_ps_rd_events</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/ps_rd_events_size">
+            <obj_property name="ElementShortName">ps_rd_events_size[31:0]</obj_property>
+            <obj_property name="ObjectShortName">ps_rd_events_size[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/m_axis_aclk">
+            <obj_property name="ElementShortName">m_axis_aclk</obj_property>
+            <obj_property name="ObjectShortName">m_axis_aclk</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/m_axis_aresetn">
+            <obj_property name="ElementShortName">m_axis_aresetn</obj_property>
+            <obj_property name="ObjectShortName">m_axis_aresetn</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/m_axis_tvalid">
+            <obj_property name="ElementShortName">m_axis_tvalid</obj_property>
+            <obj_property name="ObjectShortName">m_axis_tvalid</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/m_axis_tready">
+            <obj_property name="ElementShortName">m_axis_tready</obj_property>
+            <obj_property name="ObjectShortName">m_axis_tready</obj_property>
+         </wvobject>
+         <wvobject type="array" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/m_axis_tdata">
+            <obj_property name="ElementShortName">m_axis_tdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">m_axis_tdata[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject type="logic" fp_name="/tb_dut/dut_inst/nat2maxis_dma_spk_aer_inst/m_axis_tlast">
+            <obj_property name="ElementShortName">m_axis_tlast</obj_property>
+            <obj_property name="ObjectShortName">m_axis_tlast</obj_property>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+</wave_config>
