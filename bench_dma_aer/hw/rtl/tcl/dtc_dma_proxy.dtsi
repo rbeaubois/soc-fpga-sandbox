@@ -1,0 +1,7 @@
+// dma-coherent actually doesn't work for dma mm2s (only in SG) ?
+dma_proxy {
+	compatible ="xlnx,dma_proxy";
+	dmas = <&axi_dma_spk 0 &axi_dma_spk 1>;
+	dma-names = "dma_proxy_spk_to_pl", "dma_proxy_spk_to_ps";
+	//dma-coherent;
+};
