@@ -38,15 +38,15 @@ architecture RTL of farch_nat_fifo_spk_stream_from_ps is
         rst           : in std_logic;
         wr_clk        : in std_logic;
         rd_clk        : in std_logic;
-        din           : in std_logic_vector(31 downto 0);
+        din           : in std_logic_vector(DWIDTH-1 downto 0);
         wr_en         : in std_logic;
         rd_en         : in std_logic;
-        dout          : out std_logic_vector(31 downto 0);
+        dout          : out std_logic_vector(DWIDTH-1 downto 0);
         full          : out std_logic;
         empty         : out std_logic;
         wr_rst_busy   : out std_logic;
         rd_rst_busy   : out std_logic;
-        wr_data_count : out std_logic_vector(9 downto 0)
+        wr_data_count : out std_logic_vector(AWIDTH-1 downto 0)
     );
     end component;
     
@@ -60,14 +60,13 @@ architecture RTL of farch_nat_fifo_spk_stream_from_ps is
         rd_clk          : in std_logic;
         wr_en           : in std_logic;
         rd_en           : in std_logic;
-        din             : in std_logic_vector(31 downto 0);
-        dout            : out std_logic_vector(31 downto 0);
+        din             : in std_logic_vector(DWIDTH-1 downto 0);
+        dout            : out std_logic_vector(DWIDTH-1 downto 0);
         wr_rst_busy     : out std_logic;
         rd_rst_busy     : out std_logic;
         full            : out std_logic;
         empty           : out std_logic;
-        data_count      : out std_logic_vector(10 downto 0);
-        wr_data_count   : out std_logic_vector(10 downto 0) 
+        wr_data_count   : out std_logic_vector(AWIDTH-1 downto 0)
     );
     end component;
 begin
@@ -101,7 +100,6 @@ begin
             rd_rst_busy     => rd_rst_busy,
             full            => full,
             empty           => empty,
-            data_count      => open,
             wr_data_count   => wr_data_count
         );
     end generate gen_farch_nat_fifo_spk_stream_from_ps;
