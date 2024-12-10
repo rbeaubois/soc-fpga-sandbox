@@ -20,7 +20,7 @@ set TCL_SCRIPT_PATH [ file dirname [ file normalize [ info script ] ] ]
 cd $TCL_SCRIPT_PATH
 
 # User generics ######################################
-set BOARD_NAME KR260
+set BOARD_NAME VPK120
 set VIVADO_VER 2023_2
 set PRJ_NAME bench_dma_aer
 set DIR_SOURCE ${TCL_SCRIPT_PATH}/../src
@@ -34,9 +34,8 @@ set TOP_FILE top
 
 # Create and setup project
 set VIV_PRJ_NAME ${PRJ_NAME}_${BOARD_NAME}_v${VIVADO_VER}
-create_project ${VIV_PRJ_NAME} ${DIR_OUTPUT}/${VIV_PRJ_NAME} -part xck26-sfvc784-2LV-c
-set_property board_part xilinx.com:kr260_som:part0:1.1 [current_project]
-set_property board_connections {som240_2_connector xilinx.com:kr260_carrier:som240_2_connector:1.0 som240_1_connector xilinx.com:kr260_carrier:som240_1_connector:1.0} [current_project]
+create_project ${VIV_PRJ_NAME} ${DIR_OUTPUT}/${VIV_PRJ_NAME} -part xcvp1202-vsva2785-2MP-e-S
+set_property board_part xilinx.com:vpk120:part0:1.2 [current_project]
 set_property target_language VHDL [current_project]
 set_property simulator_language VHDL [current_project]
 set bd_design_name bd

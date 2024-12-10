@@ -1,6 +1,6 @@
 
 ################################################################
-# This is a generated script based on design: system
+# This is a generated script based on design: bd
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -41,7 +41,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source system_script.tcl
+# source bd_script.tcl
 
 
 # The design that will be created by this Tcl script contains the following 
@@ -63,7 +63,7 @@ if { $list_projs eq "" } {
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name system
+set design_name bd
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -928,8 +928,8 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets ps8_0_axi_periph_M03_AXI] [get_b
    "Color Coded_ScaleFactor":"0.562846",
    "Color Coded_TopLeft":"18,-108",
    "Default View_Layers":"/dma_spk_free_slots_pl_ps_intr:true|/dma_spk_size_ev_pl_ps_intr:true|/rst_clk_wiz_0_199M_peripheral_aresetn:true|/zynq_ultra_ps_e_0_pl_resetn0:true|/top_0_dma_spk_o_fifo2ps_wr_ev_pl_intr:true|/clk_wiz_0_clk_axi:true|/zynq_ultra_ps_e_0_pl_clk0:true|/axi_dma_0_mm2s_introut:true|/axi_dma_0_s2mm_introut:true|/top_0_dma_spk_i_fifo2pl_free_slots_pl_intr:true|/clk_wiz_0_clk_pl:true|/dma_spk_size_ev_pl_pl_intr:true|/dma_spk_free_slots_pl_pl_intr:true|",
-   "Default View_ScaleFactor":"0.521895",
-   "Default View_TopLeft":"31,-80",
+   "Default View_ScaleFactor":"0.630752",
+   "Default View_TopLeft":"894,16",
    "Display-PortTypeClock":"true",
    "Display-PortTypeInterrupt":"true",
    "Display-PortTypeOthers":"true",
@@ -966,49 +966,49 @@ preplace inst rst_clk_wiz_0_199M -pg 1 -lvl 2 -x 710 -y 410 -defaultsOSRD
 preplace inst axi_smc -pg 1 -lvl 3 -x 1340 -y 620 -defaultsOSRD
 preplace inst concat_intr_pl_dma -pg 1 -lvl 1 -x 150 -y 590 -defaultsOSRD
 preplace inst axi_params_dma -pg 1 -lvl 4 -x 1853 -y 860 -defaultsOSRD
-preplace netloc axcache_coherent_dout 1 1 4 290 -10 N -10 N -10 2050
-preplace netloc axi_dma_0_mm2s_introut 1 0 5 50 -40 NJ -40 NJ -40 NJ -40 2060
-preplace netloc axi_dma_0_s2mm_introut 1 0 5 40 -70 NJ -70 NJ -70 NJ -70 2110
-preplace netloc axi_gpio_free_slots_to_pl_pl_intr 1 0 5 40 790 NJ 790 NJ 790 1633J 350 2040
-preplace netloc axi_gpio_ready_ev_to_ps_pl_intr 1 0 5 50 780 NJ 780 NJ 780 1673J 770 2040
-preplace netloc axi_gpio_ready_ev_to_ps_ps_intr 1 4 1 2180 560n
-preplace netloc axprot_unsecure_dout 1 1 4 300 0 N 0 N 0 2070
+preplace netloc axcache_coherent_dout 1 1 4 310 -10 N -10 N -10 2040
+preplace netloc axi_dma_0_mm2s_introut 1 0 5 50 -40 NJ -40 NJ -40 NJ -40 2050
+preplace netloc axi_dma_0_s2mm_introut 1 0 5 40 -70 NJ -70 NJ -70 NJ -70 2100
+preplace netloc axi_gpio_free_slots_to_pl_pl_intr 1 0 5 40 790 NJ 790 NJ 790 1643J 350 2030
+preplace netloc axi_gpio_ready_ev_to_ps_pl_intr 1 0 5 50 780 NJ 780 NJ 780 1683J 770 2030
+preplace netloc axi_gpio_ready_ev_to_ps_ps_intr 1 4 1 2190 560n
+preplace netloc axprot_unsecure_dout 1 1 4 320 0 N 0 N 0 2060
 preplace netloc bench_dma_aer_pmod1 1 5 1 N 440
 preplace netloc bench_dma_aer_pmod2 1 5 1 N 460
 preplace netloc bench_dma_aer_pmod3 1 5 1 N 480
 preplace netloc bench_dma_aer_pmod4 1 5 1 N 500
-preplace netloc clk_wiz_0_clk_axi 1 1 4 310 10 1150 10 1623 330 2220
-preplace netloc clk_wiz_0_clk_pl 1 2 3 1110 20 1653 30 2210
+preplace netloc clk_wiz_0_clk_axi 1 1 4 330 10 1160 10 1633 330 2230
+preplace netloc clk_wiz_0_clk_pl 1 2 3 1090 20 1663 30 2220
 preplace netloc concat_intr_pl_dma_dout 1 1 1 250 250n
 preplace netloc concat_intr_pl_gpio_dout 1 1 1 270 270n
-preplace netloc dma_spk_free_slots_pl_data_from_ps 1 4 1 2180 430n
-preplace netloc dma_spk_free_slots_pl_ps_intr 1 4 1 2150 470n
-preplace netloc dma_spk_size_ev_pl_data_from_ps 1 4 1 2150 540n
-preplace netloc fan_driver_Dout 1 5 1 2870 120n
-preplace netloc rst_clk_wiz_0_199M_peripheral_aresetn 1 2 3 1160 40 1583 340 2140
-preplace netloc top_0_dma_spk_i_fifo2pl_free_slots_pl 1 3 3 1653 750 2100 820 2840
-preplace netloc top_0_dma_spk_i_fifo2pl_free_slots_pl_intr 1 3 3 1663 20 N 20 2830
-preplace netloc top_0_dma_spk_o_fifo2ps_size_wr_ev_pl 1 3 3 1643 760 2080 830 2830
-preplace netloc top_0_dma_spk_o_fifo2ps_wr_ev_pl_intr 1 3 3 1673 740 2090 840 2820
-preplace netloc top_0_uled_uf1 1 5 1 2860 400n
-preplace netloc top_0_uled_uf2 1 5 1 2850 420n
-preplace netloc zynq_ultra_ps_e_0_emio_ttc0_wave_o 1 2 3 1120 30 1633 40 2220
-preplace netloc zynq_ultra_ps_e_0_pl_clk0 1 1 2 330 30 1100
-preplace netloc zynq_ultra_ps_e_0_pl_resetn0 1 1 2 320 20 1090
-preplace netloc axi_dma_0_M_AXIS_MM2S 1 4 1 2160 190n
-preplace netloc axi_dma_0_M_AXI_MM2S 1 2 3 1170 -60 N -60 2090
-preplace netloc axi_dma_0_M_AXI_S2MM 1 2 3 1190 -30 NJ -30 2040
-preplace netloc axi_dma_0_M_AXI_SG 1 2 3 1180 -50 NJ -50 2080
-preplace netloc axi_smc_M00_AXI 1 1 3 280 -20 NJ -20 1490J
-preplace netloc bench_dma_aer_M_AXIS_SPK_MON 1 3 3 1673 70 2170J 180 2820
-preplace netloc ps8_0_axi_periph_M00_AXI 1 3 2 1563J 730 2210
-preplace netloc ps8_0_axi_periph_M01_AXI 1 3 1 1500 260n
-preplace netloc ps8_0_axi_periph_M02_AXI 1 3 1 1613 280n
-preplace netloc ps8_0_axi_periph_M03_AXI 1 3 2 1603J 60 2190
-preplace netloc ps8_0_axi_periph_M04_AXI 1 3 2 1593J 50 2200
-preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_FPD 1 2 1 1130J 100n
-preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM1_FPD 1 2 1 1140 120n
-preplace netloc ps8_0_axi_periph_M05_AXI 1 3 1 1573 340n
+preplace netloc dma_spk_free_slots_pl_data_from_ps 1 4 1 2190 430n
+preplace netloc dma_spk_free_slots_pl_ps_intr 1 4 1 2160 470n
+preplace netloc dma_spk_size_ev_pl_data_from_ps 1 4 1 2160 540n
+preplace netloc fan_driver_Dout 1 5 1 2860 120n
+preplace netloc rst_clk_wiz_0_199M_peripheral_aresetn 1 2 3 1170 40 1593 340 2150
+preplace netloc top_0_dma_spk_i_fifo2pl_free_slots_pl 1 3 3 1663 750 2090 820 2830
+preplace netloc top_0_dma_spk_i_fifo2pl_free_slots_pl_intr 1 3 3 1673 20 N 20 2820
+preplace netloc top_0_dma_spk_o_fifo2ps_size_wr_ev_pl 1 3 3 1653 760 2070 830 2820
+preplace netloc top_0_dma_spk_o_fifo2ps_wr_ev_pl_intr 1 3 3 1683 740 2080 840 2810
+preplace netloc top_0_uled_uf1 1 5 1 2850 400n
+preplace netloc top_0_uled_uf2 1 5 1 2840 420n
+preplace netloc zynq_ultra_ps_e_0_emio_ttc0_wave_o 1 2 3 1100 30 1643 40 2230
+preplace netloc zynq_ultra_ps_e_0_pl_clk0 1 1 2 350 30 1080
+preplace netloc zynq_ultra_ps_e_0_pl_resetn0 1 1 2 340 20 1070
+preplace netloc axi_dma_0_M_AXIS_MM2S 1 4 1 2170 190n
+preplace netloc axi_dma_0_M_AXI_MM2S 1 2 3 1180 -60 N -60 2080
+preplace netloc axi_dma_0_M_AXI_S2MM 1 2 3 1200 -30 NJ -30 2030
+preplace netloc axi_dma_0_M_AXI_SG 1 2 3 1190 -50 NJ -50 2070
+preplace netloc axi_smc_M00_AXI 1 1 3 300 -20 NJ -20 1480J
+preplace netloc bench_dma_aer_M_AXIS_SPK_MON 1 3 3 1683 70 2180J 180 2810
+preplace netloc ps8_0_axi_periph_M00_AXI 1 3 2 1573J 730 2220
+preplace netloc ps8_0_axi_periph_M01_AXI 1 3 1 1490 260n
+preplace netloc ps8_0_axi_periph_M02_AXI 1 3 1 1623 280n
+preplace netloc ps8_0_axi_periph_M03_AXI 1 3 2 1613J 60 2200
+preplace netloc ps8_0_axi_periph_M04_AXI 1 3 2 1603J 50 2210
+preplace netloc ps8_0_axi_periph_M05_AXI 1 3 1 1583 340n
+preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_FPD 1 2 1 1110J 100n
+preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM1_FPD 1 2 1 1120 120n
 levelinfo -pg 1 0 150 710 1340 1853 2520 2910
 pagesize -pg 1 -db -bbox -sgen 0 -340 3090 950
 "

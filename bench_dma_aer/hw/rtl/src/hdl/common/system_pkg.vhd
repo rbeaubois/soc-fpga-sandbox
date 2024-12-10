@@ -20,10 +20,10 @@ package system_pkg is
         constant HW_UID     : integer := 999_999_003;
 
         -- FPGA Architecture --
-        constant FPGA_ARCH : fpga_arch_t := ZYNQMP; -- ZYNQMP | VERSAL
+        constant FPGA_ARCH : fpga_arch_t := VERSAL; -- ZYNQMP | VERSAL
 
         -- Project path --
-        constant PRJ_ROOT_PATH      : string  := "/home/rbeaubois/work/projects/sandbox/bench_dma_aer/";
+        constant PRJ_ROOT_PATH      : string  := "/home/rbeaubois/work/projects/soc-fpga-projects/bench_dma_aer/";
 
         -- C++ header hardware config files for C++ app --
         constant H_HWCONFIG_DIRPATH : string  := PRJ_ROOT_PATH & "sw/target/app/src/hwconfig/include/";
