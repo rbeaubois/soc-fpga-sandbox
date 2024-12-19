@@ -17,7 +17,7 @@ package system_pkg is
         -- <EDIT> >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         -- Hardware version --
         constant HW_VERSION : string  := "0.1.0";
-        constant HW_UID     : integer := 999_999_003;
+        constant HW_UID     : integer := 999_999_004;
 
         -- FPGA Architecture --
         constant FPGA_ARCH : fpga_arch_t := VERSAL; -- ZYNQMP | VERSAL
