@@ -16,9 +16,10 @@ load_driver() {
     plinux_release=$(uname -r)
 
     if [ "$distro" = "Ubuntu" ]; then
-        sudo insmod "$BENCHDMAAER_PATH/drivers/dma_proxy/dma-proxy.ko"
+        sudo insmod "$BENCHDMAAER_PATH/drivers/dma_proxy/ubuntu/dma-proxy.ko"
     elif [ "$distro" = "petalinux" ]; then
-        sudo insmod "/lib/modules/$plinux_release/extra/dma-proxy.ko"
+        sudo insmod "$BENCHDMAAER_PATH/drivers/dma_proxy/petalinux/dma-proxy.ko"
+        # sudo insmod "/lib/modules/$plinux_release/extra/dma-proxy.ko"
     else
         echo "$TAG Error: No driver available for $distro"
     fi
