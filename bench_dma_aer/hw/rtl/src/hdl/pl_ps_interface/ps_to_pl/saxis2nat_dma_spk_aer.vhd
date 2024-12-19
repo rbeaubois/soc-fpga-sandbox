@@ -76,23 +76,6 @@ architecture rtl of saxis2nat_dma_spk_aer is
     signal fifo_cdc_full          : std_logic;
     signal fifo_cdc_empty         : std_logic;
     signal fifo_cdc_wr_data_count : std_logic_vector(9 downto 0);
-
-    component nat_fifo_spk_stream_from_ps_ip
-    port (
-        rst           : in std_logic;
-        wr_clk        : in std_logic;
-        rd_clk        : in std_logic;
-        din           : in std_logic_vector(31 downto 0);
-        wr_en         : in std_logic;
-        rd_en         : in std_logic;
-        dout          : out std_logic_vector(31 downto 0);
-        full          : out std_logic;
-        empty         : out std_logic;
-        wr_rst_busy   : out std_logic;
-        rd_rst_busy   : out std_logic;
-        wr_data_count : out std_logic_vector(9 downto 0)
-    );
-    end component;
 begin
     -- ========================================
     -- Module assertions
@@ -210,8 +193,12 @@ begin
 
     -- Store stream in FIFO (as block but could be as builtin)
     count_fifo_spk_in <= fifo_cdc_wr_data_count;
-    axis_data_fifo_spk_stream_ps_inst: nat_fifo_spk_stream_from_ps_ip
-    port map (        
+    nat_fifo_spk_stream_from_ps_inst: entity work.farch_nat_fifo_spk_stream_from_ps
+    generic map(
+        DWIDTH => DWIDTH_SPK_IN,
+        AWIDTH => AWIDTH_FIFO_SPK_IN
+    )
+    port map (
         rst             => srst_axi or not(s_axis_spk_in_aresetn),
         wr_clk          => s_axis_spk_in_ACLK,
         rd_clk          => clk_pl,

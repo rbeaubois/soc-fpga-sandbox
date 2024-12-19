@@ -21,7 +21,7 @@ fi
 # Define directories
 DRIVERS_DIR="$BENCHDMAAER_PATH/drivers"
 FIRMWARE_DIR="$BENCHDMAAER_PATH/firmware"
-SOFTWARE_DIR="$BENCHDMAAER_PATH/app"
+APP_DIR="$BENCHDMAAER_PATH/app"
 
 # Function to build drivers
 build_drivers() {
@@ -29,7 +29,7 @@ build_drivers() {
 
     if [ "$distro" = "Ubuntu" ]; then
         echo -e "$TAG Building drivers for Ubuntu ..."
-        cd "$DRIVERS_DIR/dma_proxy" || exit 1
+        cd "$DRIVERS_DIR/dma_proxy/ubuntu" || exit 1
         make clean
         make
     elif [ "$distro" = "petalinux" ]; then
@@ -54,11 +54,11 @@ build_firmware() {
     fi
 }
 
-# Function to build software
-build_software() {
-    echo -e "$TAG Building software..."
-    cd "$SOFTWARE_DIR" || exit 1
-    make "ARCH=$HW_FPGA_ARCH"
+# Function to build app (software)
+build_app() {
+    echo -e "$TAG Building C++ application..."
+    cd "$APP_DIR" || exit 1
+    make "ARCH=$HW_FPGA_ARCH" $1
 }
 
 # Function to clean builds
@@ -67,12 +67,12 @@ clean() {
     
     echo -e "$TAG Cleaning builds..."
     echo -e "$TAG Clean application build"
-    cd "$SOFTWARE_DIR" || exit 1
+    cd "$APP_DIR" || exit 1
     make "ARCH=$HW_FPGA_ARCH" clean
 
     echo -e "$TAG Clean drivers build"
     if [ "$distro" = "Ubuntu" ]; then
-        cd "$DRIVERS_DIR/dma_proxy/" || exit 1
+        cd "$DRIVERS_DIR/dma_proxy/ubuntu" || exit 1
         make clean
     fi
 
@@ -98,20 +98,25 @@ main() {
         firmware)
             build_firmware
             ;;
-        software)
-            build_software
+        app)
+            build_app "release"
             ;;
         clean)
             clean
             ;;
+        debug)
+            build_drivers
+            build_firmware
+            build_app "debug"
+            ;;
         all|"")
             build_drivers
             build_firmware
-            build_software
+            build_app "release"
             ;;
         *)
             echo -e "$TAG Invalid option: $1"
-            echo -e "$TAG Usage: $0 [drivers|firmware|software|all|clean]"
+            echo -e "$TAG Usage: $0 [drivers|firmware|app|debug|all|clean]"
             exit 1
             ;;
     esac
