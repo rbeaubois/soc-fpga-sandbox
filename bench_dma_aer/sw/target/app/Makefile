@@ -6,6 +6,7 @@ RELEASE_DIR ?= $(BUILD_DIR)/release
 SRC_DIRS ?= ./src
 
 MAKEFLAGS := --jobs=8
+# MAKEFLAGS += --output-sync=target # avoid intermixed lines but no colors :x
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
 DEBUG_OBJS := $(SRCS:%=$(DEBUG_DIR)/%.o)
@@ -18,6 +19,11 @@ CROSS_COMPILE ?= false
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 LDFLAGS := -pthread -lzmq
+CPPFLAGS ?= -MMD -MP -O3 -pthread -lzmq $(ARCH_FLAGS)
+
+# Debug
+DEBUG_CPPFLAGS ?= $(CPPFLAGS) -DDEBUG
+# DEBUG_CPPFLAGS += -DBG_PROBE_TWSYN_EXPORT # example debug probe
 
 ifeq ($(ARCH), zynqmp)
 	ARCH_FLAGS := -DHW_FPGA_ARCH_ZYNQMP
@@ -36,12 +42,6 @@ else
 	@echo "Invalid architecture specified. Use 'zynqmp' or 'versal'."
 	exit 1
 endif
-
-CPPFLAGS ?= -MMD -MP -O3 -pthread -lzmq $(ARCH_FLAGS)
-
-# Debug
-DEBUG_TARGET_EXEC := $(TARGET_EXEC)
-DEBUG_CPPFLAGS ?= $(CPPFLAGS) -DDEBUG
 
 $(RELEASE_DIR)/$(TARGET_EXEC): $(RELEASE_OBJS)
 	$(CXX) $(RELEASE_OBJS) -o $@ $(LDFLAGS)
@@ -77,11 +77,7 @@ $(RELEASE_DIR)/%.cpp.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Debug target
-debug: CPPFLAGS := $(DEBUG_CPPFLAGS)
-debug: $(DEBUG_DIR)/$(DEBUG_TARGET_EXEC)
-
-$(DEBUG_DIR)/$(DEBUG_TARGET_EXEC): $(DEBUG_OBJS)
-	$(CXX) $(DEBUG_OBJS) -o $@ $(LDFLAGS)
+debug: $(DEBUG_DIR)/$(TARGET_EXEC)
 
 # Release target
 release: $(RELEASE_DIR)/$(TARGET_EXEC)

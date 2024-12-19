@@ -38,8 +38,6 @@ case $arg_debug_mode in
 esac
 
 # Print software config loaded
-
-
 case $arg_print_swconfig in
     true)
         app_args="--fpath-swconfig $1 --print-swconfig --sweep-progress 0"
@@ -53,7 +51,6 @@ case $arg_print_swconfig in
         ;;
 esac
 
-fpath_exec="$BENCHDMAAER_PATH/app/build/$target_exec"
 if [ -f $fpath_exec ]; then
     sudo $fpath_exec $app_args
 fi
