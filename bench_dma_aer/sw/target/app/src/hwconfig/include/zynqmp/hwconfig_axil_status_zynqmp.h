@@ -7,17 +7,8 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Registers mapping
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// Index registers written by PS
-#define REGW_LB_BASE 0
-
-// Index registers read by PS
-#define REGR_LB_BASE 4
-
-// Bit labels PS write registers
-#define BIT_EN_CORE 0
-
-// Bit labels PS read registers
+#define REGW_DUMMY_BASE 0
+#define REGR_DUMMY_BASE_LB 0
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Number of registers

@@ -1,0 +1,8 @@
+{
+    "run_time_s": 1,
+    "en_save_stream_ps_to_pl":      false,
+    "en_save_stream_pl_to_ps":      false,
+    "intr_thresh_free_slots_to_pl": 256,
+    "intr_thresh_ready_ev_to_ps":   200,
+    "dirpath_save_stream": "/home/petalinux/bench_dma_rx/data/"
+}
