@@ -23,7 +23,7 @@ package system_pkg is
         constant FPGA_ARCH : fpga_arch_t := VERSAL; -- ZYNQMP | VERSAL
 
         -- Project path --
-        constant PRJ_ROOT_PATH      : string  := "/home/rbeaubois/work/projects/soc-fpga-projects/bench_dma_aer/";
+        constant PRJ_ROOT_PATH      : string  := "/home/rbeaubois/work/projects/soc-fpga-sandbox/bench_dma_aer/";
 
         -- C++ header hardware config files for C++ app --
         constant H_HWCONFIG_DIRPATH : string  := PRJ_ROOT_PATH & "sw/target/app/src/hwconfig/include/";
