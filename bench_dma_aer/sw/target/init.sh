@@ -30,13 +30,22 @@ chmod +x "$BENCHDMAAER_PATH"/app/*.sh
 chmod +x "$BENCHDMAAER_PATH"/firmware/*.sh
 
 
-echo "Launch initialization on startup (append to .bashrc)? (y/n): "
-read append_to_bashrc
-append_to_bashrc=$(echo "$append_to_bashrc" | tr '[:upper:]' '[:lower:]')
-
-if [[ "$append_to_bashrc" == "y" || "$append_to_bashrc" == "yes" ]]; then
-    # Check if .init.bak file exists, if not, create it and update ~/.bashrc
-    if [ ! -e "$BENCHDMAAER_PATH/.init.bak" ]; then
+# Check if .init.bak file exists, if not, create it and update ~/.bashrc
+if [ ! -e "$BENCHDMAAER_PATH/.init.bak" ]; then
+    # Handle argument to skip
+    if [ -z "$2" ]; then
+        echo "Launch initialization on startup (append to .bashrc)? (y/n): "
+        read append_to_bashrc
+        append_to_bashrc=$(echo "$append_to_bashrc" | tr '[:upper:]' '[:lower:]')
+    elif [ "$2" = "-y" ]; then
+        append_to_bashrc="y"
+    else
+        echo "-y to automatically append and not $2"
+        append_to_bashrc="n"
+    fi
+    
+    # Append
+    if [[ "$append_to_bashrc" == "y" || "$append_to_bashrc" == "yes" ]]; then
         cp "$BENCHDMAAER_PATH/init.sh" "$BENCHDMAAER_PATH/.init.bak"
         echo "export BENCHDMAAER_PATH=$BENCHDMAAER_PATH" >> ~/.bashrc
         echo "source $BENCHDMAAER_PATH/init.sh $BENCHDMAAER_TARGET" >> ~/.bashrc

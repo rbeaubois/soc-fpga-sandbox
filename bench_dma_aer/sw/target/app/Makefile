@@ -18,6 +18,7 @@ ARCH ?= all
 CROSS_COMPILE ?= false
 
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+# INC_FLAGS := $(addprefix -I,$(INC_DIRS)) # (slower but allow to include everything as if in same)
 LDFLAGS := -pthread -lzmq
 CPPFLAGS ?= -MMD -MP -O3 -pthread -lzmq $(ARCH_FLAGS)
 
