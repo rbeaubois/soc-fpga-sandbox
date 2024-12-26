@@ -13,8 +13,6 @@ build/
 *.project
 *.cf
 .settings/
-*.bit
-
 
 # cpp - object files
 *.o
