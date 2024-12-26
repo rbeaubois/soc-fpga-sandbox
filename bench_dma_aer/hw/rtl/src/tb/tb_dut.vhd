@@ -21,7 +21,7 @@ architecture bench of tb_dut is
     constant DWIDTH_GPIO         : integer := 32;
     constant DWIDTH_AXIL_CONTROL : integer := 32;
     constant AWDITH_AXIL_CONTROL : integer := 16;
-    constant LAT_RD_CDC_FIFO     : integer := 2;
+    constant LAT_RD_CDC_FIFO     : integer := 0;
     constant MAX_SPK_PER_TS      : integer := 1000;
     constant TIME_STEP_CCY       : integer := 200;
     

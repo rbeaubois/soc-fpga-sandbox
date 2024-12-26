@@ -20,7 +20,7 @@ package system_pkg is
         constant HW_UID     : integer := 999_999_004;
 
         -- FPGA Architecture --
-        constant FPGA_ARCH : fpga_arch_t := VERSAL; -- ZYNQMP | VERSAL
+        constant FPGA_ARCH : fpga_arch_t := ZYNQMP; -- ZYNQMP | VERSAL
 
         -- Project path --
         constant PRJ_ROOT_PATH      : string  := "/home/rbeaubois/work/projects/soc-fpga-sandbox/bench_dma_aer/";

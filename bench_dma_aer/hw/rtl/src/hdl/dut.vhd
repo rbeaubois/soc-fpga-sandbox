@@ -159,8 +159,8 @@ begin
     ---------------------------------------------------------------------------------------
     saxis2nat_dma_spk_inst : entity work.saxis2nat_dma_spk_aer
     generic map (
-        DWIDTH_SPK_IN       => DWIDTH_SPK_IN,
-        AWIDTH_FIFO_SPK_IN  => AWIDTH_FIFO_SPK_IN,
+        DWIDTH              => DWIDTH_SPK_IN,
+        AWIDTH_FIFO         => AWIDTH_FIFO_SPK_IN,
         LAT_RD_CDC_FIFO     => LAT_RD_CDC_FIFO,
         MAX_SPK_PER_TS      => MAX_SPK_PER_TS
     )
@@ -171,14 +171,14 @@ begin
         en_core               => en_core,
         ts_tick               => ts_tick,
         ps_tx_dma_rdy         => ps_tx_dma_rdy,
-        count_fifo_spk_in     => count_fifo_spk_in,
+        count_fifo            => count_fifo_spk_in,
 
-        s_axis_spk_in_aclk    => S_AXIS_SPK_IN_ACLK,
-        s_axis_spk_in_aresetn => S_AXIS_SPK_IN_ARESETN,
-        s_axis_spk_in_tready  => S_AXIS_SPK_IN_TREADY,
-        s_axis_spk_in_tdata   => S_AXIS_SPK_IN_TDATA,
-        s_axis_spk_in_tlast   => S_AXIS_SPK_IN_TLAST,
-        s_axis_spk_in_tvalid  => S_AXIS_SPK_IN_TVALID,
+        s_axis_aclk           => S_AXIS_SPK_IN_ACLK,
+        s_axis_aresetn        => S_AXIS_SPK_IN_ARESETN,
+        s_axis_tready         => S_AXIS_SPK_IN_TREADY,
+        s_axis_tdata          => S_AXIS_SPK_IN_TDATA,
+        s_axis_tlast          => S_AXIS_SPK_IN_TLAST,
+        s_axis_tvalid         => S_AXIS_SPK_IN_TVALID,
 
         rdy_events            => raw_rdy_events,
         ts_event              => raw_ts_event,

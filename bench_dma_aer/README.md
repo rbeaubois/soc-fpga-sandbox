@@ -77,6 +77,23 @@ dma_proxy_driver_node: dma_proxy {
     * axi_gpio_ready_ev_to_ps
     * bench_dma_aer
 
+### (Optional) Verify that UIO driver is loaded with "generic-uio" compatibility
+
+* **Update Kernel Bootargs in Petalinux**: in order for the driver to work properly with Petalinux it is required to update Kernel Bootargs (then you just need to update boot components)
+
+```bash
+petalinux-config
+# In the config window
+DTG Settings --> Kernel Bootargs ---> (... uio_pdrv_genirq.of_id=generic-uio) Add extra boot args
+petalinux-build
+petalinux-package --boot --format BIN --fsbl images/linux/zynqmp_fsbl.elf --u-boot
+sudo cp -r images/linux/BOOT.BIN images/linux/boot.scr images/linux/image.ub /media/rbeaubois/KR3-BOOT
+
+# Alternative is loading the kernel module with arguments
+modprobe -r uio_pdrv_genirq
+modprobe uio_pdrv_genirq of_id="mydevice,generic-uio,ui_pdrv"
+```
+
 ## Build software
 
 * Copy `sw/target` on target

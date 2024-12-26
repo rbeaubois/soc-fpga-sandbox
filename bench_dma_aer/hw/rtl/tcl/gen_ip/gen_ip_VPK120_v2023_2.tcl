@@ -3,6 +3,7 @@ create_ip -name emb_fifo_gen -vendor xilinx.com -library ip -version 1.0 -module
 set_property -dict [list \
   CONFIG.INTERFACE_TYPE {Native} \
   CONFIG.FIFO_MEMORY_TYPE {BRAM} \
+  CONFIG.READ_MODE {FWFT} \
   CONFIG.CLOCK_DOMAIN {Independent_Clock} \
   CONFIG.ENABLE_ALMOST_EMPTY {false} \
   CONFIG.ENABLE_ALMOST_FULL {false} \
@@ -14,7 +15,6 @@ set_property -dict [list \
   CONFIG.ENABLE_READ_DATA_VALID {false} \
   CONFIG.ENABLE_UNDERFLOW {false} \
   CONFIG.ENABLE_WRITE_ACK {false} \
-  CONFIG.FIFO_READ_LATENCY {2} \
   CONFIG.FIFO_WRITE_DEPTH {1024} \
   CONFIG.WR_DATA_COUNT_WIDTH {10} \
 ] [get_ips nat_fifo_spk_stream_from_ps_ip_versal]
