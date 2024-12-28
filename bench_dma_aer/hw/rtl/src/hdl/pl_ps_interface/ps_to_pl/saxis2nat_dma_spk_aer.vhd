@@ -85,6 +85,10 @@ begin
     report "Discrepancy in depth of [axis_data_fifo_spk_stream_ps], please verify IP generation"
     severity error;
 
+    assert LAT_RD_CDC_FIFO <= 2
+    report "FIFO read latency > 2 not supported for module [saxis2nat_dma_spk_aer]"
+    severity error;    
+
     -- ========================================
     -- FIFO CDC to temporize stream from PS
     -- ========================================

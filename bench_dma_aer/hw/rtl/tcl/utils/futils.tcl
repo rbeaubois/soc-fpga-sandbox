@@ -14,14 +14,15 @@ namespace eval futils {
     proc parse_vhdl_generic {fpath_vhdl label} {
         # Expression matching is:
         #
-        # {^\s*(constant)\s+(\S+)\s*:\s*(\S+)\s*:=\s*(\S+)\s*;\s*$}
+        # {^\s*(constant)\s+(\S+)\s*:\s*(\S+)\s*:=\s*(\S+)\s*;\s*(--.*)?$}
         # - ^\s*(constant) matches the constant keyword at the beginning of the line, with optional leading spaces.
         # - (\S+) captures the constant name (name), which is a non-whitespace sequence.
         # - \s*:\s* matches the colon (:) and any spaces around it.
         # - (\S+) captures the type (type).
         # - \s*:=\s* matches the assignment operator (:=) and any surrounding spaces.
         # - (\S+) captures the assigned value (value).
-        # - \s*;\s*$ matches the closing semicolon (;) with optional trailing spaces.
+        # - \s*;\s* matches the closing semicolon (;) with optional trailing spaces.
+        # - (.*)? allows for an optional comment (starting with "--" and followed by any characters) at the end of the line.
 
         # Check if file exists
         if { ![file exists $fpath_vhdl] } {
@@ -38,8 +39,8 @@ namespace eval futils {
 
         # Iterate lines to find matching definition
         foreach ele $splitCont {
-            # Parse constant definitions
-            if {[regexp {^\s*(constant)\s+(\S+)\s*:\s*(\S+)\s*:=\s*(\S+)\s*;\s*$} $ele -> keyword name type value]} {
+            # Parse constant definitions, ignoring comments at the end of the line
+            if {[regexp {^\s*(constant)\s+(\S+)\s*:\s*(\S+)\s*:=\s*(\S+)\s*;\s*(--.*)?$} $ele -> keyword name type value _]} {
                 # Check if constant name matches
                 if { $name eq $label } {
                     # Remove underscores (for integers written as 100_000)
@@ -54,8 +55,8 @@ namespace eval futils {
                     } elseif {[regexp {^".*"$} $value]} {
                         return [string range $value 1 end-1]; # (str)
                     } else {
-                        puts "Match found but type is not supported (supported are: int,float,str)."
-                        return -1; # others type not handled
+                        puts "Match found but type is not supported (supported are: int, float, str)."
+                        return -1; # unsupported type
                     }
                 }
             }
@@ -64,6 +65,8 @@ namespace eval futils {
         # Return -1 if label is not found
         return -1
     }
+
+
 
     # Find files in folder and subfolders
     # 
@@ -132,5 +135,12 @@ namespace eval futils {
 
         # Return only unique filenames
         return [lsort -unique $result]
+    }
+
+    proc clog2 {value} {
+        if {$value <= 0} {
+            return "Error: value must be greater than 0"
+        }
+        return [expr {int(ceil(log($value) / log(2)))}]
     }
 }

@@ -5,19 +5,23 @@
    <db_ref_list>
       <db_ref path="tb_dut_behav.wdb" id="1">
          <top_modules>
+            <top_module name="fpga_arch_pkg" />
+            <top_module name="futils_cpp_pkg" />
+            <top_module name="futils_global_pkg" />
             <top_module name="glbl" />
+            <top_module name="system_pkg" />
             <top_module name="tb_dut" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,099.278 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,616.535 ns"></ZoomEndTime>
-      <Cursor1Time time="1,342.023 ns"></Cursor1Time>
+      <ZoomStartTime time="576.507 ns"></ZoomStartTime>
+      <ZoomEndTime time="606.584 ns"></ZoomEndTime>
+      <Cursor1Time time="587.500 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="264"></NameColumnWidth>
-      <ValueColumnWidth column_width="144"></ValueColumnWidth>
+      <ValueColumnWidth column_width="140"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="11" />
    <wvobject fp_name="divider466" type="divider">
@@ -55,30 +59,6 @@
          <obj_property name="DisplayName">label</obj_property>
          <obj_property name="BkColor">#FAAFBE</obj_property>
       </wvobject>
-      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_aclk">
-         <obj_property name="ElementShortName">s_axis_spk_in_aclk</obj_property>
-         <obj_property name="ObjectShortName">s_axis_spk_in_aclk</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_aresetn">
-         <obj_property name="ElementShortName">s_axis_spk_in_aresetn</obj_property>
-         <obj_property name="ObjectShortName">s_axis_spk_in_aresetn</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tready">
-         <obj_property name="ElementShortName">s_axis_spk_in_tready</obj_property>
-         <obj_property name="ObjectShortName">s_axis_spk_in_tready</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tdata">
-         <obj_property name="ElementShortName">s_axis_spk_in_tdata[31:0]</obj_property>
-         <obj_property name="ObjectShortName">s_axis_spk_in_tdata[31:0]</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tlast">
-         <obj_property name="ElementShortName">s_axis_spk_in_tlast</obj_property>
-         <obj_property name="ObjectShortName">s_axis_spk_in_tlast</obj_property>
-      </wvobject>
-      <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/s_axis_spk_in_tvalid">
-         <obj_property name="ElementShortName">s_axis_spk_in_tvalid</obj_property>
-         <obj_property name="ObjectShortName">s_axis_spk_in_tvalid</obj_property>
-      </wvobject>
       <wvobject fp_name="divider468" type="divider">
          <obj_property name="label">CDC Native FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -91,6 +71,7 @@
       <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_din">
          <obj_property name="ElementShortName">fifo_cdc_din[31:0]</obj_property>
          <obj_property name="ObjectShortName">fifo_cdc_din[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_wr_en">
          <obj_property name="ElementShortName">fifo_cdc_wr_en</obj_property>
@@ -103,6 +84,7 @@
       <wvobject type="array" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_dout">
          <obj_property name="ElementShortName">fifo_cdc_dout[31:0]</obj_property>
          <obj_property name="ObjectShortName">fifo_cdc_dout[31:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject type="logic" fp_name="/tb_dut/dut_inst/saxis2nat_dma_spk_inst/fifo_cdc_full">
          <obj_property name="ElementShortName">fifo_cdc_full</obj_property>

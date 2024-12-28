@@ -5,10 +5,23 @@ proc gen_ip {board vivado_ver main_tcl_path} {
     # Extract parameters from VHDL files
     set DEPTH_FIFO_SPK_IN  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK_IN]
     set DWIDTH_FIFO_SPK_IN [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK_IN]
-    set AWIDTH_FIFO_SPK_IN [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd AWIDTH_FIFO_SPK_IN]
+    set AWIDTH_FIFO_SPK_IN [futils::clog2 $DEPTH_FIFO_SPK_IN]
 
     set DEPTH_FIFO_SPK_MON  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK_MON]
     set DWIDTH_FIFO_SPK_MON [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK_MON]
+
+    set len_header_line 60
+    puts [string repeat "=" $len_header_line]
+    puts "Generate IP with the following generics:\n"
+
+    puts "DEPTH_FIFO_SPK_IN:   $DEPTH_FIFO_SPK_IN"
+    puts "DWIDTH_FIFO_SPK_IN:  $DWIDTH_FIFO_SPK_IN"
+    puts "AWIDTH_FIFO_SPK_IN:  $AWIDTH_FIFO_SPK_IN"
+    puts [string repeat "-" 5]
+
+    puts "DEPTH_FIFO_SPK_MON:  $DEPTH_FIFO_SPK_MON"
+    puts "DWIDTH_FIFO_SPK_MON: $DWIDTH_FIFO_SPK_MON"
+    puts [string repeat "=" $len_header_line]
 
     # Check if IP support is defined for a given board and version
     set is_supported_board 1
@@ -23,8 +36,8 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
                     CONFIG.Performance_Options {First_Word_Fall_Through} \
                     CONFIG.Use_Embedded_Registers {true} \
-                    CONFIG.Input_Depth {$DEPTH_FIFO_SPK_IN} \
-                    CONFIG.Input_Data_Width {$DWIDTH_FIFO_SPK_IN} \
+                    CONFIG.Input_Depth $DEPTH_FIFO_SPK_IN \
+                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPK_IN \
                     CONFIG.Enable_Reset_Synchronization {true} \
                     CONFIG.Enable_Safety_Circuit {true} \
                     CONFIG.Write_Data_Count {true} \
@@ -35,8 +48,8 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     set_property -dict [list \
                     CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
                     CONFIG.Performance_Options {First_Word_Fall_Through} \
-                    CONFIG.Input_Depth {$DEPTH_FIFO_SPK_MON} \
-                    CONFIG.Input_Data_Width {$DWIDTH_FIFO_SPK_MON} \
+                    CONFIG.Input_Depth $DEPTH_FIFO_SPK_MON \
+                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPK_MON \
                     CONFIG.Enable_Safety_Circuit {true} \
                     CONFIG.Use_Extra_Logic {false} \
                     CONFIG.synchronization_stages {2} \
@@ -76,8 +89,8 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.ENABLE_READ_DATA_VALID {false} \
                     CONFIG.ENABLE_UNDERFLOW {false} \
                     CONFIG.ENABLE_WRITE_ACK {false} \
-                    CONFIG.FIFO_WRITE_DEPTH {$DEPTH_FIFO_SPK_IN} \
-                    CONFIG.WR_DATA_COUNT_WIDTH {$AWIDTH_FIFO_SPK_IN} \
+                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK_IN \
+                    CONFIG.WR_DATA_COUNT_WIDTH $AWIDTH_FIFO_SPK_IN \
                     ] [get_ips nat_fifo_spk_stream_from_ps_ip_versal]
 
                     # Dual clock native interface FIFO to PS via DMA
@@ -98,7 +111,7 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.ENABLE_READ_DATA_VALID {false} \
                     CONFIG.ENABLE_UNDERFLOW {false} \
                     CONFIG.ENABLE_WRITE_ACK {false} \
-                    CONFIG.FIFO_WRITE_DEPTH {$DEPTH_FIFO_SPK_MON} \
+                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK_MON \
                     ] [get_ips nat_fifo_spk_stream_to_ps_ip_versal]
 
                     # AXI GPIO
