@@ -30,6 +30,7 @@ use ieee.numeric_std.all;
 
 use std.textio.all;
 
+use work.futils_global_pkg;
 use work.futils_cpp_pkg;
 use work.fpga_arch_pkg.gen_selector_hwconfig_hfile;
 
@@ -39,7 +40,7 @@ package axilite_mapper_pkg is
     constant MAX_AWIDTH_AXIL  : integer :=  16;
 
     type axl_mapper_t is protected
-        impure function init(max_nb_regs:integer; gen:boolean; cname:string; dirpath:string; fname:string; fpga_arch:string) return boolean;
+        impure function init(max_nb_regs:integer; gen:boolean; cname:string; dirpath:string; fname:string; fpga_arch:string; addr_offset:string; addr_range:string) return boolean;
         impure function add_ps_write_register(reg_label:string; nb_regs:integer) return integer;
         impure function add_ps_read_register(reg_label:string; nb_regs:integer) return integer;
         impure function add_bit_label(bit_label:string; reg_index:integer) return integer;
@@ -73,9 +74,13 @@ package body axilite_mapper_pkg is
         variable this_fpath        : cstring_t := (others => NUL);
         variable this_fname        : cstring_t := (others => NUL);
         variable this_cname        : cstring_t := (others => NUL);
+        variable this_offset       : cstring_t := (others => NUL);
+        variable this_range        : cstring_t := (others => NUL);
         variable this_fpath_len    : cstring_len_t;
         variable this_fname_len    : cstring_len_t;
         variable this_cname_len    : cstring_len_t;
+        variable this_offset_len   : cstring_len_t;
+        variable this_range_len    : cstring_len_t;
         variable this_done         : boolean   := false;
         
         variable this_nb_regs      : integer := 0;
@@ -169,7 +174,7 @@ package body axilite_mapper_pkg is
         -- Public methods
         -- =============
         --! Initialize export file
-        impure function init(max_nb_regs:integer; gen:boolean; cname:string; dirpath:string; fname:string; fpga_arch:string) return boolean is
+        impure function init(max_nb_regs:integer; gen:boolean; cname:string; dirpath:string; fname:string; fpga_arch:string; addr_offset:string; addr_range:string) return boolean is
             constant gen_sel : boolean := gen_selector_hwconfig_hfile(gen, dirpath, fname & "_" & cname);
             constant fpath   : string := dirpath & fpga_arch & "/" & fname & "_" & cname & "_" & fpga_arch & ".h";
         begin
@@ -187,10 +192,14 @@ package body axilite_mapper_pkg is
             this_fpath(fpath'range) := fpath;
             this_fname(fname'range) := fname;
             this_cname(cname'range) := cname;
+            this_offset(addr_offset'range) := addr_offset;
+            this_range(addr_range'range)   := addr_range;
 
-            this_fpath_len := fpath'length;
-            this_fname_len := fname'length;
-            this_cname_len := cname'length;
+            this_fpath_len  := fpath'length;
+            this_fname_len  := fname'length;
+            this_cname_len  := cname'length;
+            this_offset_len := addr_offset'length;
+            this_range_len  := addr_range'length;
 
             this_nb_regs  := 0;
             this_nb_regr  := 0;
@@ -206,7 +215,14 @@ package body axilite_mapper_pkg is
                     futils_cpp_pkg.add_comment(fout, "*** Mapping AXI-Lite core: " & this_cname(1 to this_cname_len)  & " ***");
                     futils_cpp_pkg.add_blank_line(fout);
 
-                    futils_cpp_pkg.add_include_guard_top(fout, this_fname(1 to this_fname_len) & "_" &this_cname(1 to this_cname_len) & '_' & fpga_arch);
+                    futils_cpp_pkg.add_include_guard_top(fout, this_fname(1 to this_fname_len) & "_" & this_cname(1 to this_cname_len) & '_' & fpga_arch);
+                    futils_cpp_pkg.add_blank_line(fout);
+
+                    futils_cpp_pkg.add_comment(fout, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                    futils_cpp_pkg.add_comment(fout, "Address mapping");
+                    futils_cpp_pkg.add_comment(fout, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                    futils_cpp_pkg.add_define(fout, "OFFSET_AXILITE_" & futils_global_pkg.to_uppercase(this_cname(1 to this_cname_len)), this_offset(1 to this_offset_len));
+                    futils_cpp_pkg.add_define(fout, "RANGE_AXILITE_" & futils_global_pkg.to_uppercase(this_cname(1 to this_cname_len)), this_range(1 to this_range_len));
                     futils_cpp_pkg.add_blank_line(fout);
 
                     futils_cpp_pkg.add_comment(fout, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");

@@ -20,16 +20,16 @@ use work.futils_cpp_pkg;
 package axidma_pkg is
     -- General parameters ---------------------------------------------------------------------------
         -- Stream from PS to PL
-        constant DWIDTH_DMA_SPK_IN  : integer := 32;
-        constant DEPTH_FIFO_SPK_IN  : integer := 1024; -- should match IP declaration <nat_fifo_spk_stream_from_ps_ip>
-        constant DWIDTH_FIFO_SPK_IN : integer := 32;
-        constant AWIDTH_FIFO_SPK_IN : integer := integer(ceil(log2(real(DEPTH_FIFO_SPK_IN))));
+        constant DWIDTH_DMA_SPK2PL  : integer := 32;
+        constant DEPTH_FIFO_SPK2PL  : integer := 1024; -- should match IP declaration <nat_fifo_spk_stream_from_ps_ip>
+        constant DWIDTH_FIFO_SPK2PL : integer := 32;
+        constant AWIDTH_FIFO_SPK2PL : integer := integer(ceil(log2(real(DEPTH_FIFO_SPK2PL))));
 
         -- Stream from PS to PL
-        constant DWIDTH_DMA_SPK_MON  : integer := 32;
-        constant DEPTH_FIFO_SPK_MON  : integer := 1024; -- should match IP declaration <nat_fifo_spk_stream_to_ps_ip>
-        constant DWIDTH_FIFO_SPK_MON : integer := 32;
-        constant AWIDTH_FIFO_SPK_MON : integer := integer(ceil(log2(real(DEPTH_FIFO_SPK_IN))));
+        constant DWIDTH_DMA_SPK2PS  : integer := 32;
+        constant DEPTH_FIFO_SPK2PS  : integer := 1024; -- should match IP declaration <nat_fifo_spk_stream_to_ps_ip>
+        constant DWIDTH_FIFO_SPK2PS : integer := 32;
+        constant AWIDTH_FIFO_SPK2PS : integer := integer(ceil(log2(real(DEPTH_FIFO_SPK2PS))));
 
         -- Stream from PL to PS
         type dma_opmode_t is record
@@ -71,15 +71,15 @@ package body axidma_pkg is
                 futils_cpp_pkg.add_blank_line(fout);
 
                 futils_cpp_pkg.add_comment(fout, "Generics DMA PS send FIFO");
-                futils_cpp_pkg.add_define(fout, "DEPTH_FIFO_SPK_IN",    DEPTH_FIFO_SPK_IN);
-                futils_cpp_pkg.add_define(fout, "DWIDTH_FIFO_SPK_IN",   DWIDTH_FIFO_SPK_IN);
-                futils_cpp_pkg.add_define(fout, "AWIDTH_FIFO_SPK_IN",   AWIDTH_FIFO_SPK_IN);
+                futils_cpp_pkg.add_define(fout, "DEPTH_FIFO_SPK2PL",    DEPTH_FIFO_SPK2PL);
+                futils_cpp_pkg.add_define(fout, "DWIDTH_FIFO_SPK2PL",   DWIDTH_FIFO_SPK2PL);
+                futils_cpp_pkg.add_define(fout, "AWIDTH_FIFO_SPK2PL",   AWIDTH_FIFO_SPK2PL);
                 futils_cpp_pkg.add_blank_line(fout);
         
                 futils_cpp_pkg.add_comment(fout, "Generics DMA PS recv FIFO");
-                futils_cpp_pkg.add_define(fout, "DEPTH_FIFO_SPK_MON",   DEPTH_FIFO_SPK_MON);
-                futils_cpp_pkg.add_define(fout, "DWIDTH_FIFO_SPK_MON",  DWIDTH_FIFO_SPK_MON);
-                futils_cpp_pkg.add_define(fout, "AWIDTH_FIFO_SPK_MON",  AWIDTH_FIFO_SPK_MON);
+                futils_cpp_pkg.add_define(fout, "DEPTH_FIFO_SPK2PS",   DEPTH_FIFO_SPK2PS);
+                futils_cpp_pkg.add_define(fout, "DWIDTH_FIFO_SPK2PS",  DWIDTH_FIFO_SPK2PS);
+                futils_cpp_pkg.add_define(fout, "AWIDTH_FIFO_SPK2PS",  AWIDTH_FIFO_SPK2PS);
                 futils_cpp_pkg.add_blank_line(fout);
                 -- <<<<<<<<<<<<<<<<<<<<<
 

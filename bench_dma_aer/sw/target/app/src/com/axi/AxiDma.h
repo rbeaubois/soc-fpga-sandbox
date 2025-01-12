@@ -87,8 +87,8 @@ using namespace std;
 class AxiDma{
     public:
         private :
-            const string _tx_channel_names[TX_CHANNEL_COUNT] = { "dma_proxy_spk_to_pl" };
-            const string _rx_channel_names[RX_CHANNEL_COUNT] = { "dma_proxy_spk_to_ps" };
+            const string _tx_channel_names[TX_CHANNEL_COUNT] = { "dma_proxy_spk2pl" };
+            const string _rx_channel_names[RX_CHANNEL_COUNT] = { "dma_proxy_spk2ps" };
             struct channel _tx_channels[TX_CHANNEL_COUNT];
             struct channel _rx_channels[RX_CHANNEL_COUNT];
 

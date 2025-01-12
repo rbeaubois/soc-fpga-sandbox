@@ -178,7 +178,7 @@ void AxiDma::sendSpikesThread(void* args){
 	}
 
 	// Initialize custom AXI probe
-	AxiProbeUioIntr axi_probe_free_slots_to_pl = AxiProbeUioIntr("axi_gpio_free_slots_to_pl", OFFSET_AXI_FREE_SLOTS_TO_PL, RANGE_AXI_FREE_SLOTS_TO_PL);
+	AxiProbeUioIntr axi_probe_free_slots_to_pl = AxiProbeUioIntr("axigpio_free_slots_to_pl", OFFSET_AXI_FREE_SLOTS_TO_PL, RANGE_AXI_FREE_SLOTS_TO_PL);
 	axi_probe_free_slots_to_pl.unmask_pl_interrupt();
 	axi_probe_free_slots_to_pl.clear_flag_write_to_pl(); // deassert valid write
 	
@@ -287,7 +287,9 @@ void AxiDma::recvSpikesThread(void* args){
 	int buf_cnt				   = 0;
 
 	// Initialize AXI GPIO to get status of events ready and initiate a transfer
-	AxiProbeUioIntr axi_probe_ready_ev_to_ps = AxiProbeUioIntr("axi_gpio_ready_ev_to_ps", OFFSET_AXI_READY_EV_TO_PS, RANGE_AXI_READY_EV_TO_PS);
+	AxiProbeUioIntr axi_probe_ready_ev_to_ps = AxiProbeUioIntr("axigpio_ready_ev_to_ps", OFFSET_AXI_READY_EV_TO_PS, RANGE_AXI_READY_EV_TO_PS);
+	axi_probe_ready_ev_to_ps.clear_flag_write_to_pl();
+	axi_probe_ready_ev_to_ps.write_to_pl(0);
 	axi_probe_ready_ev_to_ps.unmask_pl_interrupt();
 
 	// Open file to save data
@@ -360,6 +362,7 @@ void AxiDma::recvSpikesThread(void* args){
 
 		// (4) Stop/rearm data stream from PL to DMA
 		axi_probe_ready_ev_to_ps.clear_flag_write_to_pl();
+		axi_probe_ready_ev_to_ps.write_to_pl(0);
 
 		// (5) Error handling
 		switch (status){

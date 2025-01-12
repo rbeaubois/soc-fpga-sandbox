@@ -3,24 +3,24 @@ proc gen_ip {board vivado_ver main_tcl_path} {
     source $main_tcl_path/utils/futils.tcl
 
     # Extract parameters from VHDL files
-    set DEPTH_FIFO_SPK_IN  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK_IN]
-    set DWIDTH_FIFO_SPK_IN [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK_IN]
-    set AWIDTH_FIFO_SPK_IN [futils::clog2 $DEPTH_FIFO_SPK_IN]
+    set DEPTH_FIFO_SPK2PL  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK2PL]
+    set DWIDTH_FIFO_SPK2PL [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK2PL]
+    set AWIDTH_FIFO_SPK2PL [futils::clog2 $DEPTH_FIFO_SPK2PL]
 
-    set DEPTH_FIFO_SPK_MON  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK_MON]
-    set DWIDTH_FIFO_SPK_MON [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK_MON]
+    set DEPTH_FIFO_SPK2PS  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK2PS]
+    set DWIDTH_FIFO_SPK2PS [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK2PS]
 
     set len_header_line 60
     puts [string repeat "=" $len_header_line]
     puts "Generate IP with the following generics:\n"
 
-    puts "DEPTH_FIFO_SPK_IN:   $DEPTH_FIFO_SPK_IN"
-    puts "DWIDTH_FIFO_SPK_IN:  $DWIDTH_FIFO_SPK_IN"
-    puts "AWIDTH_FIFO_SPK_IN:  $AWIDTH_FIFO_SPK_IN"
+    puts "DEPTH_FIFO_SPK2PL:   $DEPTH_FIFO_SPK2PL"
+    puts "DWIDTH_FIFO_SPK2PL:  $DWIDTH_FIFO_SPK2PL"
+    puts "AWIDTH_FIFO_SPK2PL:  $AWIDTH_FIFO_SPK2PL"
     puts [string repeat "-" 5]
 
-    puts "DEPTH_FIFO_SPK_MON:  $DEPTH_FIFO_SPK_MON"
-    puts "DWIDTH_FIFO_SPK_MON: $DWIDTH_FIFO_SPK_MON"
+    puts "DEPTH_FIFO_SPK2PS:  $DEPTH_FIFO_SPK2PS"
+    puts "DWIDTH_FIFO_SPK2PS: $DWIDTH_FIFO_SPK2PS"
     puts [string repeat "=" $len_header_line]
 
     # Check if IP support is defined for a given board and version
@@ -31,29 +31,40 @@ proc gen_ip {board vivado_ver main_tcl_path} {
             switch -exact -- $vivado_ver {
                 "2023.2" {
                     # Dual clock native interface FIFO from PS via DMA
-                    create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name nat_fifo_spk_stream_from_ps_ip_zynqmp
+                    create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name nat_fifo_cdc_dma_spk2pl_ip_zynqmp
                     set_property -dict [list \
                     CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
                     CONFIG.Performance_Options {First_Word_Fall_Through} \
                     CONFIG.Use_Embedded_Registers {true} \
-                    CONFIG.Input_Depth $DEPTH_FIFO_SPK_IN \
-                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPK_IN \
+                    CONFIG.Input_Depth $DEPTH_FIFO_SPK2PL \
+                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPK2PL \
                     CONFIG.Enable_Reset_Synchronization {true} \
                     CONFIG.Enable_Safety_Circuit {true} \
                     CONFIG.Write_Data_Count {true} \
-                    ] [get_ips nat_fifo_spk_stream_from_ps_ip_zynqmp]
+                    CONFIG.Read_Data_Count {true} \
+                    ] [get_ips nat_fifo_cdc_dma_spk2pl_ip_zynqmp]
 
                     # Dual clock native interface FIFO to PS via DMA
-                    create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name nat_fifo_spk_stream_to_ps_ip_zynqmp
+                    create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name nat_fifo_cdc_dma_spk2ps_ip_zynqmp
                     set_property -dict [list \
                     CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
                     CONFIG.Performance_Options {First_Word_Fall_Through} \
-                    CONFIG.Input_Depth $DEPTH_FIFO_SPK_MON \
-                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPK_MON \
+                    CONFIG.Input_Depth $DEPTH_FIFO_SPK2PS \
+                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPK2PS \
                     CONFIG.Enable_Safety_Circuit {true} \
                     CONFIG.Use_Extra_Logic {false} \
                     CONFIG.synchronization_stages {2} \
-                    ] [get_ips nat_fifo_spk_stream_to_ps_ip_zynqmp]
+                    ] [get_ips nat_fifo_cdc_dma_spk2ps_ip_zynqmp]
+
+                    create_ip -name axis_data_fifo -vendor xilinx.com -library ip -version 2.0 -module_name axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp
+                    set_property -dict [list \
+                    CONFIG.FIFO_DEPTH {16384} \
+                    CONFIG.FIFO_MEMORY_TYPE {block} \
+                    CONFIG.FIFO_MODE {2} \
+                    CONFIG.HAS_RD_DATA_COUNT {1} \
+                    CONFIG.IS_ACLK_ASYNC {1} \
+                    CONFIG.TDATA_NUM_BYTES {4} \
+                    ] [get_ips axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp]
 
                     # AXI GPIO
                     create_ip -name axi_gpio -vendor xilinx.com -library ip -version 2.0 -module_name axigpio_dualch_intr_ip
@@ -73,7 +84,7 @@ proc gen_ip {board vivado_ver main_tcl_path} {
             switch -exact -- $vivado_ver {
                 "2023.2" {
                     # Dual clock native interface FIFO from PS via DMA
-                    create_ip -name emb_fifo_gen -vendor xilinx.com -library ip -version 1.0 -module_name nat_fifo_spk_stream_from_ps_ip_versal
+                    create_ip -name emb_fifo_gen -vendor xilinx.com -library ip -version 1.0 -module_name nat_fifo_cdc_dma_spk2pl_ip_versal
                     set_property -dict [list \
                     CONFIG.INTERFACE_TYPE {Native} \
                     CONFIG.FIFO_MEMORY_TYPE {BRAM} \
@@ -85,16 +96,15 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.ENABLE_OVERFLOW {false} \
                     CONFIG.ENABLE_PROGRAMMABLE_EMPTY {false} \
                     CONFIG.ENABLE_PROGRAMMABLE_FULL {false} \
-                    CONFIG.ENABLE_READ_DATA_COUNT {false} \
-                    CONFIG.ENABLE_READ_DATA_VALID {false} \
                     CONFIG.ENABLE_UNDERFLOW {false} \
                     CONFIG.ENABLE_WRITE_ACK {false} \
-                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK_IN \
-                    CONFIG.WR_DATA_COUNT_WIDTH $AWIDTH_FIFO_SPK_IN \
-                    ] [get_ips nat_fifo_spk_stream_from_ps_ip_versal]
+                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK2PL \
+                    CONFIG.WR_DATA_COUNT_WIDTH $AWIDTH_FIFO_SPK2PL \
+                    CONFIG.RD_DATA_COUNT_WIDTH $AWIDTH_FIFO_SPK2PL \
+                    ] [get_ips nat_fifo_cdc_dma_spk2pl_ip_versal]
 
                     # Dual clock native interface FIFO to PS via DMA
-                    create_ip -name emb_fifo_gen -vendor xilinx.com -library ip -version 1.0 -module_name nat_fifo_spk_stream_to_ps_ip_versal
+                    create_ip -name emb_fifo_gen -vendor xilinx.com -library ip -version 1.0 -module_name nat_fifo_cdc_dma_spk2ps_ip_versal
                     set_property -dict [list \
                     CONFIG.INTERFACE_TYPE {Native} \
                     CONFIG.FIFO_MEMORY_TYPE {BRAM} \
@@ -111,8 +121,8 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.ENABLE_READ_DATA_VALID {false} \
                     CONFIG.ENABLE_UNDERFLOW {false} \
                     CONFIG.ENABLE_WRITE_ACK {false} \
-                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK_MON \
-                    ] [get_ips nat_fifo_spk_stream_to_ps_ip_versal]
+                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK2PS \
+                    ] [get_ips nat_fifo_cdc_dma_spk2ps_ip_versal]
 
                     # AXI GPIO
                     create_ip -name axi_gpio -vendor xilinx.com -library ip -version 2.0 -module_name axigpio_dualch_intr_ip

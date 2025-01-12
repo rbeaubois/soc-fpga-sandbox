@@ -24,7 +24,6 @@ entity saxis2nat_dma_spk_aer is
     generic (
         DWIDTH              : integer :=    32;
         AWIDTH_FIFO         : integer :=    10;
-        LAT_RD_CDC_FIFO     : integer :=     2;
         MAX_SPK_PER_TS      : integer :=  1000
     );
     port (
@@ -35,7 +34,7 @@ entity saxis2nat_dma_spk_aer is
         en_core           : in std_logic;
         ts_tick           : in std_logic;
         ps_tx_dma_rdy     : in std_logic;
-        count_fifo : out std_logic_vector(AWIDTH_FIFO-1 downto 0);
+        count_fifo        : out std_logic_vector(AWIDTH_FIFO-1 downto 0);
 
         -- Axis stream from DMA
         s_axis_aclk     : in std_logic;
@@ -59,12 +58,15 @@ architecture rtl of saxis2nat_dma_spk_aer is
     -- ========================================
     type fsm_decode_spk_stream_t is (
         IDLE,
-        WAIT_LAT_READ0,
-        WAIT_LAT_READ1,
         READ_TS,
         READ_NB,
-        READ_ID
+        WAIT_DATA,
+        STREAM_TS,
+        STREAM_NB,
+        STREAM_ID
     );
+    signal reg_ts_event : std_logic_vector(DWIDTH-1 downto 0) := (others => '0');
+    signal reg_nb_event : std_logic_vector(DWIDTH-1 downto 0) := (others => '0');
     signal fsm_decode_spk_stream : fsm_decode_spk_stream_t := IDLE;
     
     -- ========================================
@@ -76,6 +78,7 @@ architecture rtl of saxis2nat_dma_spk_aer is
     signal fifo_cdc_dout          : std_logic_vector(DWIDTH-1 downto 0);
     signal fifo_cdc_full          : std_logic;
     signal fifo_cdc_empty         : std_logic;
+    signal fifo_cdc_rd_data_count : std_logic_vector(AWIDTH_FIFO-1 downto 0);
     signal fifo_cdc_wr_data_count : std_logic_vector(AWIDTH_FIFO-1 downto 0);
 begin
     -- ========================================
@@ -84,10 +87,6 @@ begin
     assert fifo_cdc_wr_data_count'length = count_fifo'length
     report "Discrepancy in depth of [axis_data_fifo_spk_stream_ps], please verify IP generation"
     severity error;
-
-    assert LAT_RD_CDC_FIFO <= 2
-    report "FIFO read latency > 2 not supported for module [saxis2nat_dma_spk_aer]"
-    severity error;    
 
     -- ========================================
     -- FIFO CDC to temporize stream from PS
@@ -113,7 +112,7 @@ begin
 
     -- Store stream in FIFO (as block but could be as builtin)
     count_fifo <= fifo_cdc_wr_data_count;
-    nat_fifo_spk_stream_from_ps_inst: entity work.farch_nat_fifo_spk_stream_from_ps
+    nat_fifo_spk_stream_from_ps_inst: entity work.farch_nat_fifo_cdc_dma_spk2pl
     generic map(
         DWIDTH => DWIDTH,
         AWIDTH => AWIDTH_FIFO
@@ -128,6 +127,7 @@ begin
         dout            => fifo_cdc_dout,
         full            => fifo_cdc_full,
         empty           => fifo_cdc_empty,
+        rd_data_count   => fifo_cdc_rd_data_count,
         wr_data_count   => fifo_cdc_wr_data_count,
         wr_rst_busy     => open,
         rd_rst_busy     => open
@@ -138,12 +138,12 @@ begin
     -- ========================================
     decode_stream_cdc_fifo: process (clk_pl)
         variable rd_cnt : integer range 0 to MAX_SPK_PER_TS := 0;
-        variable this_events_size : integer range 0 to MAX_SPK_PER_TS+2 := 0;
     begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
                 rd_cnt           := 0;
-                this_events_size := 0;
+                reg_ts_event     <= (others => '0');
+                reg_nb_event     <= (others => '0');
                 
                 fifo_cdc_rd_en <= '0';
                 fsm_decode_spk_stream <= IDLE;
@@ -152,56 +152,49 @@ begin
                     -- Wait for time step tick
                     when IDLE =>
                         rd_cnt := 0;
-                        this_events_size := 0;
                         
                         -- Read samples @ time step if data available in FIFO
-                        if fifo_cdc_empty = '0' and ts_tick = '1' then
+                        if unsigned(fifo_cdc_wr_data_count) >= 2 and ts_tick = '1' then
                             fifo_cdc_rd_en        <= '1';
-
-                            -- No read latency (FWFT FIFO)
-                            if LAT_RD_CDC_FIFO = 0 then
-                                fsm_decode_spk_stream <= READ_TS;
-                            -- Wait read latency
-                            else
-                                fsm_decode_spk_stream <= WAIT_LAT_READ0;
-                            end if;
+                            fsm_decode_spk_stream <= READ_TS;
                         else
                             fifo_cdc_rd_en        <= '0';
                         end if;
-
-                    -- Wait read latency 1 ccy
-                    when WAIT_LAT_READ0 =>                        
-                        if LAT_RD_CDC_FIFO = 1 then
-                            fsm_decode_spk_stream <= READ_TS;
-                        else
-                            fsm_decode_spk_stream <= WAIT_LAT_READ1;
-                        end if;
-
-                    -- Wait read latency 2 ccy
-                    when WAIT_LAT_READ1 =>
-                        fsm_decode_spk_stream <= READ_TS;
                     
                     -- Read time stamp
                     when READ_TS =>
+                        reg_ts_event <= fifo_cdc_dout;
                         fsm_decode_spk_stream <= READ_NB;
 
                     -- Read number of events
                     when READ_NB =>
-                        rd_cnt                := to_integer(unsigned(fifo_cdc_dout));
-                        this_events_size      := to_integer(unsigned(fifo_cdc_dout)) + 2;
-
-                        if this_events_size > 1 then
-                            fifo_cdc_rd_en <= '1';
-                            fsm_decode_spk_stream <= READ_ID;
-                        else
-                            fifo_cdc_rd_en <= '0';
-                            fsm_decode_spk_stream <= IDLE;
+                        rd_cnt              := to_integer(unsigned(fifo_cdc_dout));
+                        reg_nb_event        <= fifo_cdc_dout;
+                        
+                        -- continue reading only if enough data for a complete frame
+                        fifo_cdc_rd_en        <= '0';
+                        fsm_decode_spk_stream <= WAIT_DATA;
+                    
+                    -- Wait for data to be written in FIFO by PS
+                    when WAIT_DATA =>
+                        fifo_cdc_rd_en <= '0';
+                        if  unsigned(fifo_cdc_rd_data_count) >= rd_cnt then
+                            fsm_decode_spk_stream <= STREAM_TS;
                         end if;
 
+                    -- Stream time stamp
+                    when STREAM_TS =>
+                        fifo_cdc_rd_en        <= '0';
+                        fsm_decode_spk_stream <= STREAM_NB;
+                    
+                    when STREAM_NB =>
+                        fifo_cdc_rd_en        <= '1';
+                        fsm_decode_spk_stream <= STREAM_ID;
+
                     -- Read channel index
-                    when READ_ID =>
+                    when STREAM_ID =>
                         -- Disable read from fifo (considering fifo reading latency)
-                        if rd_cnt <= LAT_RD_CDC_FIFO+1 then -- +1 for ccy
+                        if rd_cnt <= 1 then -- +1 for ccy
                             fifo_cdc_rd_en <= '0';
                         end if;
 
@@ -218,12 +211,12 @@ begin
     end process;
 
     -- MUX FIFO ouptput
-    rdy_events <= '1' when fsm_decode_spk_stream = READ_TS or
-                           fsm_decode_spk_stream = READ_NB or
-                           fsm_decode_spk_stream = READ_ID 
+    rdy_events <= '1' when fsm_decode_spk_stream = STREAM_TS or
+                           fsm_decode_spk_stream = STREAM_NB or
+                           fsm_decode_spk_stream = STREAM_ID 
                       else '0';
-    ts_event   <= fifo_cdc_dout when fsm_decode_spk_stream = READ_TS else (others=>'0');
-    nb_event   <= fifo_cdc_dout when fsm_decode_spk_stream = READ_NB else (others=>'0');
-    id_event   <= fifo_cdc_dout when fsm_decode_spk_stream = READ_ID else (others=>'0');
+    ts_event   <= reg_ts_event  when fsm_decode_spk_stream = STREAM_TS else (others=>'0');
+    nb_event   <= reg_nb_event  when fsm_decode_spk_stream = STREAM_NB else (others=>'0');
+    id_event   <= fifo_cdc_dout when fsm_decode_spk_stream = STREAM_ID else (others=>'0');
 
 end architecture;

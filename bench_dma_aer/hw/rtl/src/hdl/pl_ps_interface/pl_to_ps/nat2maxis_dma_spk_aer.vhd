@@ -85,7 +85,7 @@ architecture rtl of nat2maxis_dma_spk_aer is
     -- From IP Catalog:
     -- Crossing clock domain FIFO native interface
     -- ========================================
-    -- From IP catalog and fpga arch dependent 'farch_nat_fifo_spk_stream_to_ps'
+    -- From IP catalog and fpga arch dependent 'farch_nat_fifo_cdc_dma_spk2ps'
 
     -- Interface signals
     type fsm_mux_din_cdc_fifo_t is (
@@ -184,7 +184,7 @@ begin
     -- ========================================
     -- Instanciate IP generated CDC FIFO
     -- ========================================
-    fifo_cdc_buffer_to_dma_s2mm : entity work.farch_nat_fifo_spk_stream_to_ps
+    fifo_cdc_buffer_to_dma_s2mm : entity work.farch_nat_fifo_cdc_dma_spk2ps
     generic map(
         DWIDTH      => DWIDTH_DMA
     )
