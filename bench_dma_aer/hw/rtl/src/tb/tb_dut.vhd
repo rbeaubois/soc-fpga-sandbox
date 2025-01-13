@@ -195,63 +195,63 @@ begin
         end loop;
         wait for clk_period_axi;
 
-        -- Emulate zeros sent by dma_proxy driver
-        for I in 0 to 2-1 loop
-            -- write time stamp
-            S_AXIS_SPK2PL_tvalid    <= '1';
-            S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(0, DWIDTH_SPK2PL));
-            S_AXIS_SPK2PL_tlast     <= '0';
-            wait for clk_period_axi;
+        -- -- Induce error of zeros sent by dma_proxy driver
+        -- for I in 0 to 2-1 loop
+        --     -- write time stamp
+        --     S_AXIS_SPK2PL_tvalid    <= '1';
+        --     S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(0, DWIDTH_SPK2PL));
+        --     S_AXIS_SPK2PL_tlast     <= '0';
+        --     wait for clk_period_axi;
 
-            -- write nb of events
-            S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(0, DWIDTH_SPK2PL));
-            wait for clk_period_axi;
+        --     -- write nb of events
+        --     S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(0, DWIDTH_SPK2PL));
+        --     wait for clk_period_axi;
 
-            -- write spk events
-            for J in 0 to NB_SPK_PER_TS-1 loop
+        --     -- write spk events
+        --     for J in 0 to NB_SPK_PER_TS-1 loop
 
-                S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(0, DWIDTH_SPK2PL));
-                if J = NB_SPK_PER_TS-1 then
-                    S_AXIS_SPK2PL_tlast <= '1';
-                end if;
+        --         S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(0, DWIDTH_SPK2PL));
+        --         if J = NB_SPK_PER_TS-1 then
+        --             S_AXIS_SPK2PL_tlast <= '1';
+        --         end if;
                 
-                wait for clk_period_axi;
-            end loop;
+        --         wait for clk_period_axi;
+        --     end loop;
             
-            S_AXIS_SPK2PL_tvalid    <= '0';
-            S_AXIS_SPK2PL_tdata     <= (others => '0');
-            S_AXIS_SPK2PL_tlast     <= '0';
-            tstamp := tstamp + 1;
-        end loop;
-        wait for clk_period_axi;
+        --     S_AXIS_SPK2PL_tvalid    <= '0';
+        --     S_AXIS_SPK2PL_tdata     <= (others => '0');
+        --     S_AXIS_SPK2PL_tlast     <= '0';
+        --     tstamp := tstamp + 1;
+        -- end loop;
+        -- wait for clk_period_axi;
 
-        for I in 0 to NB_TSTAMP-1 loop
-            -- write time stamp
-            S_AXIS_SPK2PL_tvalid    <= '1';
-            S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(tstamp, DWIDTH_SPK2PL));
-            S_AXIS_SPK2PL_tlast     <= '0';
-            wait for clk_period_axi;
+        -- for I in 0 to NB_TSTAMP-1 loop
+        --     -- write time stamp
+        --     S_AXIS_SPK2PL_tvalid    <= '1';
+        --     S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(tstamp, DWIDTH_SPK2PL));
+        --     S_AXIS_SPK2PL_tlast     <= '0';
+        --     wait for clk_period_axi;
 
-            -- write nb of events
-            S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(NB_SPK_PER_TS, DWIDTH_SPK2PL));
-            wait for clk_period_axi;
+        --     -- write nb of events
+        --     S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(NB_SPK_PER_TS, DWIDTH_SPK2PL));
+        --     wait for clk_period_axi;
 
-            -- write spk events
-            for J in 0 to NB_SPK_PER_TS-1 loop
+        --     -- write spk events
+        --     for J in 0 to NB_SPK_PER_TS-1 loop
 
-                S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(J, DWIDTH_SPK2PL));
-                if J = NB_SPK_PER_TS-1 then
-                    S_AXIS_SPK2PL_tlast <= '1';
-                end if;
+        --         S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(J, DWIDTH_SPK2PL));
+        --         if J = NB_SPK_PER_TS-1 then
+        --             S_AXIS_SPK2PL_tlast <= '1';
+        --         end if;
                 
-                wait for clk_period_axi;
-            end loop;
+        --         wait for clk_period_axi;
+        --     end loop;
             
-            S_AXIS_SPK2PL_tvalid    <= '0';
-            S_AXIS_SPK2PL_tdata     <= (others => '0');
-            S_AXIS_SPK2PL_tlast     <= '0';
-            tstamp := tstamp + 1;
-        end loop;
+        --     S_AXIS_SPK2PL_tvalid    <= '0';
+        --     S_AXIS_SPK2PL_tdata     <= (others => '0');
+        --     S_AXIS_SPK2PL_tlast     <= '0';
+        --     tstamp := tstamp + 1;
+        -- end loop;
         
     end process drive_dma_write_spk2pl;
     
@@ -269,7 +269,7 @@ begin
             END_SIM
         );
         signal fsm_ps_read_dma : fsm_ps_read_dma_t := IDLE;
-        signal cnt_dma_read    : integer           := 3;
+        signal cnt_dma_read    : integer           := 1;
     begin
         fsm_proc_ps_read_dma : process (clk_axi) is
             variable size_ev_to_read : unsigned(DWIDTH_GPIO-1 downto 0) := (others=>'0');
@@ -285,7 +285,7 @@ begin
                         when IDLE =>
                             M_AXIS_SPK2PS_TREADY <= '0';
                             size_ev_to_read := unsigned(pl_wr_events_size);
-                            fsm_ps_read_dma <= READY when size_ev_to_read > 100;
+                            fsm_ps_read_dma <= READY when size_ev_to_read > 50;
 
                         when READY =>
                             M_AXIS_SPK2PS_TREADY <= '1';

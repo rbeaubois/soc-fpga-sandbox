@@ -1,4 +1,4 @@
---! @title     Slave AXI-Stream to native from DMA
+--! @title     Slave AXI-Stream to native from DMA for AER spikes
 --! @file      nat2maxis_dma_spk_aer.vhd
 --! @author    Romain Beaubois
 --! @date      29 Nov 2024

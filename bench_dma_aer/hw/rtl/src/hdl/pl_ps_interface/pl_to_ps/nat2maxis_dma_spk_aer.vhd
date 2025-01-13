@@ -37,6 +37,7 @@
 --!
 --! @details 
 --! > **29 Nov 2024** : file creation (RB)
+--! > **13 Jan 2025** : patch event counter (RB)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -108,24 +109,34 @@ architecture rtl of nat2maxis_dma_spk_aer is
     -- ========================================
     -- PS read/write status through AXI GPIO
     -- ========================================
-    type fsm_count_events_t is(
+    -- Update global event counter
+    type fsm_update_ev_counter_t is(
+        IDLE,
+        SUB_PS_RD_EV,
+        ADD_PL_WR_EV
+    );
+    signal fsm_update_ev_counter : fsm_update_ev_counter_t := IDLE;
+
+    -- Count events streamed by PL
+    type fsm_count_pl_events_t is(
         IDLE,
         COUNT,
-        SUB_PS_RD_EV,
-        ADD_PL_WR_EV,
-        UPDATE
+        RDY
     );
-    signal fsm_count_events : fsm_count_events_t := IDLE;
+    signal fsm_count_pl_events : fsm_count_pl_events_t := IDLE;
+    signal pl_count_rdy : std_logic := '0';
     signal pl_ev_cnt_cur_ts : unsigned(DWIDTH_GPIO-1 downto 0) := (others => '0');
 
+    -- Sync PS read (extra logic to handle "sync" with soft)
     type fsm_sync_ps_read_cnt_t is (
         WAIT_ASSERT_READ,
-        UPDATE,
+        SYNC_PS_READ_SIZE,
         WAIT_PROCCESS_READ,
         WAIT_DEASSERT_READ
     );
     signal fsm_sync_ps_read_cnt     : fsm_sync_ps_read_cnt_t := WAIT_ASSERT_READ;
     signal synced_ps_rd_events_size : std_logic_vector(DWIDTH_GPIO-1 downto 0);
+    signal synced_ps_rd_events_rdy  : std_logic;
 
     -- ========================================
     -- RTL to AXI Stream master
@@ -214,33 +225,34 @@ begin
     ---------------------------------------------------------------------------------------
     -- ========================================
     -- Update event counter
+    -- 
+    -- * Update event counter at each PL write (add new events)
+    -- * Update event counter at each PS read (sub events read)
+    -- * Generate interrupt on PL write
     -- ========================================
     -- Global fsm event counter status
-    proc_fsm_count_events : process (clk_pl) is
+    proc_fsm_update_ev_counter : process (clk_pl) is
     begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
-                fsm_count_events <= IDLE;
+                fsm_update_ev_counter <= IDLE;
             else
-                case fsm_count_events is
+                case fsm_update_ev_counter is
                     when IDLE =>
-                        fsm_count_events <= COUNT when rdy_in_events = '1';
-
-                    when COUNT =>
-                        fsm_count_events <= SUB_PS_RD_EV when rdy_in_events = '0';
+                        fsm_update_ev_counter <= SUB_PS_RD_EV when synced_ps_rd_events_rdy = '1' else
+                                                 ADD_PL_WR_EV when pl_count_rdy = '1' else
+                                                 IDLE;
 
                     when SUB_PS_RD_EV =>
-                        fsm_count_events <= ADD_PL_WR_EV;
+                        fsm_update_ev_counter <= ADD_PL_WR_EV when pl_count_rdy = '1' 
+                                                              else IDLE;
                     
                     when ADD_PL_WR_EV =>
-                        fsm_count_events <= UPDATE;
-
-                    when UPDATE =>
-                        fsm_count_events <= IDLE;
+                        fsm_update_ev_counter <= IDLE;
                 end case;
             end if;
         end if;
-    end process proc_fsm_count_events;
+    end process proc_fsm_update_ev_counter;
 
     -- Update counter value
     update_counter : process (clk_pl) is
@@ -251,26 +263,49 @@ begin
                 cnt := (others => '0');
                 pl_wr_events_size <= (others => '0');
             else
-                if fsm_count_events = SUB_PS_RD_EV then
+                if fsm_update_ev_counter = SUB_PS_RD_EV then
                     cnt := cnt - unsigned(synced_ps_rd_events_size);
-                elsif fsm_count_events = ADD_PL_WR_EV then
+                elsif fsm_update_ev_counter = ADD_PL_WR_EV then
                     cnt := cnt + pl_ev_cnt_cur_ts;
-                elsif fsm_count_events = UPDATE then
-                    pl_wr_events_size <= std_logic_vector(cnt);
                 end if;
+                pl_wr_events_size <= std_logic_vector(cnt);
             end if;
         end if;
     end process update_counter;
 
     -- Generate interrupt at each write
-    ts_pl_wr_ev_intr <= '1' when fsm_count_events = ADD_PL_WR_EV or
-                                 fsm_count_events = SUB_PS_RD_EV or
-                                 fsm_count_events = UPDATE 
+    ts_pl_wr_ev_intr <= '1' when fsm_update_ev_counter = ADD_PL_WR_EV
                             else '0';
     
     -- ========================================
-    -- Count events written by PL in current time step
+    -- Count events streamed by PL in current time step
+    --
+    -- * Count continuously pl events from the rdy rise to fall
     -- ========================================
+    -- Control counter pl event 
+    proc_fsm_count_pl_events : process (clk_pl) is
+    begin
+        if rising_edge(clk_pl) then
+            if srst_pl = '1' then
+                fsm_count_pl_events <= IDLE;
+            else
+                case fsm_count_pl_events is
+                    when IDLE =>
+                        fsm_count_pl_events <= COUNT when rdy_in_events = '1';
+
+                    when COUNT =>
+                        fsm_count_pl_events <= RDY when rdy_in_events = '0';
+
+                    when RDY =>
+                        fsm_count_pl_events <= IDLE;
+                end case;
+            end if;
+        end if;
+    end process proc_fsm_count_pl_events;
+
+    pl_count_rdy <= '1' when fsm_count_pl_events = RDY 
+                        else '0';
+
     count_current_ts_pl_wr_ev : process (clk_pl) is
         variable cnt : integer range 0 to MAX_SPK_PER_TS+2-1 := 0;
     begin
@@ -279,9 +314,9 @@ begin
                 cnt := 0;
                 pl_ev_cnt_cur_ts <= (others => '0');
             else
-                if fsm_count_events = IDLE then
+                if fsm_count_pl_events = IDLE then
                     cnt := 0;
-                elsif fsm_count_events = COUNT then
+                elsif fsm_count_pl_events = COUNT then
                     cnt := cnt + 1;
                 else
                     pl_ev_cnt_cur_ts <= to_unsigned(cnt, pl_ev_cnt_cur_ts'length);
@@ -292,24 +327,45 @@ begin
     
     -- ========================================
     -- Synchronize ps read event size
+    --
+    -- PS soft operation:
+    -- (1) Set read size with axi_gpio (write_to_pl())
+    -- (2) Set flag high to request read (set_flag_write_to_pl())
+    -- (3) Read GPIO data and start transfer (read_from_pl())
+    -- (4) Wait for transfer completed
+    -- (5) Set read size to 0 (write_to_pl())
+    -- (6) Clear flag low to rearm (clear_flag_write_to_pl())
+    -- 
+    -- PL operation:
+    -- * Wait for flag rise
+    -- * Latch read size
+    -- * Wait for event counter to process read
+    -- * Wait for clear of flag
     -- ========================================
     update_event_size_proc : process (clk_pl) is
     begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
+                synced_ps_rd_events_size <= (others => '0');
                 fsm_sync_ps_read_cnt <= WAIT_ASSERT_READ;
             else
                 case fsm_sync_ps_read_cnt is
                     when WAIT_ASSERT_READ =>
+                        synced_ps_rd_events_size <= (others => '0');
+
                         if en_ps_rd_events = '1' then
-                            fsm_sync_ps_read_cnt <= UPDATE;
+                            fsm_sync_ps_read_cnt <= SYNC_PS_READ_SIZE;
                         end if;
                         
-                    when UPDATE =>
-                        fsm_sync_ps_read_cnt <= WAIT_PROCCESS_READ;
+                    when SYNC_PS_READ_SIZE =>
+                        synced_ps_rd_events_size <= ps_rd_events_size;
+
+                        if unsigned(ps_rd_events_size) > 0 then
+                            fsm_sync_ps_read_cnt <= WAIT_PROCCESS_READ;
+                        end if;
 
                     when WAIT_PROCCESS_READ =>
-                        if fsm_count_events = SUB_PS_RD_EV then
+                        if fsm_update_ev_counter = SUB_PS_RD_EV then
                             fsm_sync_ps_read_cnt <= WAIT_DEASSERT_READ;
                         end if;
 
@@ -322,9 +378,8 @@ begin
         end if;
     end process update_event_size_proc;
 
-    synced_ps_rd_events_size <= ps_rd_events_size when fsm_sync_ps_read_cnt = UPDATE 
-                                                    or fsm_sync_ps_read_cnt = WAIT_PROCCESS_READ else
-                                (others => '0');
+    synced_ps_rd_events_rdy <= '1' when fsm_sync_ps_read_cnt = WAIT_PROCCESS_READ 
+                                   else '0';
 
     ---------------------------------------------------------------------------------------
     --
