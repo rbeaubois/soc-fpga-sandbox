@@ -112,7 +112,7 @@ begin
 
     -- Store stream in FIFO (as block but could be as builtin)
     count_fifo <= fifo_cdc_wr_data_count;
-    nat_fifo_spk_stream_from_ps_inst: entity work.farch_nat_fifo_cdc_dma_spk2pl
+    nat_fifo_spk_stream_from_ps_inst: entity work.farch_fifo_cdc_dma_spk2pl
     generic map(
         DWIDTH => DWIDTH,
         AWIDTH => AWIDTH_FIFO

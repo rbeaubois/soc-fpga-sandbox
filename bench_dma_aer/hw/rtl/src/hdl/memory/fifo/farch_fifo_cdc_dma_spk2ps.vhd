@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 use work.system_pkg.FPGA_ARCH;
 use work.fpga_arch_pkg.fpga_arch_t;
 
-entity farch_nat_fifo_cdc_dma_spk2ps is
+entity farch_fifo_cdc_dma_spk2ps is
     generic(
         DWIDTH: integer
     );
@@ -22,9 +22,9 @@ entity farch_nat_fifo_cdc_dma_spk2ps is
         wr_rst_busy: out std_logic;
         rd_rst_busy: out std_logic
     );
-end entity farch_nat_fifo_cdc_dma_spk2ps;
+end entity farch_fifo_cdc_dma_spk2ps;
 
-architecture RTL of farch_nat_fifo_cdc_dma_spk2ps is
+architecture RTL of farch_fifo_cdc_dma_spk2ps is
     -- Instanciation templates from IP catalog
     -- depending on FPGA architecture
 
@@ -66,7 +66,7 @@ architecture RTL of farch_nat_fifo_cdc_dma_spk2ps is
     );
     end component;
 begin
-    gen_farch_nat_fifo_cdc_dma_spk2ps : if FPGA_ARCH = ZYNQMP generate
+    gen_farch_fifo_cdc_dma_spk2ps : if FPGA_ARCH = ZYNQMP generate
         nat_fifo_cdc_dma_spk2ps_ip_zynqmp_inst : nat_fifo_cdc_dma_spk2ps_ip_zynqmp
         port map (
             rst         => rst,
@@ -96,5 +96,5 @@ begin
             full            => full,
             empty           => empty
         );
-    end generate gen_farch_nat_fifo_cdc_dma_spk2ps;
+    end generate gen_farch_fifo_cdc_dma_spk2ps;
 end architecture RTL;

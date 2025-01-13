@@ -173,8 +173,8 @@ namespace eval vivutils {
         puts "The following commands were added:"
         puts "  * Run synthesis:            vivutils::run_synth nb_jobs"
         puts "  * Run implementation:       vivutils::run_impl nb_jobs"
-        puts "  * Run all and export xsa:   vivutils::generate_xsa nb_jobs $vivado_prj_name $DIR_OUTPUT"
-        puts "  * Update block design tcl:  vivutils::update_tcl_bd $vivado_prj_name $DIR_OUTPUT"
+        puts "  * Run all and export xsa:   vivutils::generate_xsa nb_jobs \$vivado_prj_name \$DIR_OUTPUT"
+        puts "  * Update block design tcl:  vivutils::update_tcl_bd \$vivado_prj_name \$DIR_OUTPUT"
         puts [string repeat "=" $len_header_line]
     }
 }

@@ -69,7 +69,7 @@ architecture rtl of nat2maxis_dma_sps_nbt is
     -- From IP Catalog:
     -- Crossing clock domain axi stream FIFO from PL to AXI DMA
     -- ========================================
-    component axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp is
+    component farch_axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp is
     port ( 
         s_axis_aresetn      : in std_logic;
         s_axis_aclk         : in std_logic;
@@ -210,7 +210,10 @@ begin
     -- Master axis to slave axis of CDC FIFO
     ---------------------------------------------------------------------------------------
 
-    axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp_inst: axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp
+    farch_fifo_cdc_dma_sps2ps_inst: entity work.farch_fifo_cdc_dma_sps2ps
+    generic map(
+        DWIDTH => DWIDTH
+    )
     port map(
         -- slave from rtl in clock rtl domain
         s_axis_aresetn    => s_axis_aresetn,

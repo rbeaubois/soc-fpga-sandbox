@@ -9,6 +9,8 @@ use work.axilite_mapper_pkg.MAX_AWIDTH_AXIL;
 
 entity top is
     generic (
+        FREQ_MHZ_CLK_RTL    : integer :=   400;
+
         DWIDTH_GPIO         : integer :=    32;
         DWIDTH_DATA         : integer :=    32;
         DWIDTH_SPK2PL       : integer :=    32;
@@ -20,11 +22,14 @@ entity top is
         AWIDTH_FIFO_SPK2PL  : integer :=    10;
         MAX_SPK_PER_TS      : integer :=  1000;
         TIME_STEP_CCY       : integer := 12500;
-
-        SPS_FREQ_MHZ_CLK_RTL : integer := 400;
-        SPS_TIME_STEP_US     : integer := 500;
-        SPS_PACKET_SIZE      : integer := 32;
-        SPS_DWIDTH           : integer := 32
+        
+        TIME_STEP_US_SPS    : integer := 500;
+        PACKET_SIZE_SPS     : integer := 32;
+        DWIDTH_SPS          : integer := 32;
+        DWIDTH_TS           : integer := 32;
+        DWIDTH_ID           : integer := 32;
+        AWIDTH_FIFO_SPS2PL  : integer := 13;
+        NB_CHANNELS         : integer := 64
     );
     port (
         -- Clock
@@ -118,7 +123,7 @@ entity top is
         S_AXIS_SPS2PL_ACLK     : in std_logic;
         S_AXIS_SPS2PL_ARESETN  : in std_logic;
         S_AXIS_SPS2PL_TREADY   : out std_logic;
-        S_AXIS_SPS2PL_TDATA    : in std_logic_vector(SPS_DWIDTH-1 downto 0);
+        S_AXIS_SPS2PL_TDATA    : in std_logic_vector(DWIDTH_SPS-1 downto 0);
         S_AXIS_SPS2PL_TLAST    : in std_logic;
         S_AXIS_SPS2PL_TVALID   : in std_logic;
 
@@ -127,12 +132,15 @@ entity top is
         M_AXIS_SPS2PS_ARESETN  : in std_logic;
         M_AXIS_SPS2PS_TVALID   : out std_logic;
         M_AXIS_SPS2PS_TREADY   : in std_logic;
-        M_AXIS_SPS2PS_TDATA    : out std_logic_vector(SPS_DWIDTH-1 downto 0);
+        M_AXIS_SPS2PS_TDATA    : out std_logic_vector(DWIDTH_SPS-1 downto 0);
         M_AXIS_SPS2PS_TLAST    : out std_logic;
 
         -- AXI GPIO: samples available
-        dma_sps2ps_fifo_rcnt    : out std_logic_vector(SPS_DWIDTH-1 downto 0);
+        dma_sps2ps_fifo_rcnt    : out std_logic_vector(DWIDTH_SPS-1 downto 0);
         dma_sps2ps_wr_done_intr : out std_logic;
+
+        dma_sps2pl_wr_en        : in std_logic;
+        dma_sps2pl_wr_cnt_fifo  : out std_logic_vector(AWIDTH_FIFO_SPS2PL-1 downto 0);
         
         -- ================================
         -- GPIOs
@@ -495,25 +503,40 @@ begin
     ---------------------------------------------------------------------------------------
     dut_sps_inst: entity work.dut_sps
     generic map(
-        FREQ_MHZ_CLK_RTL => SPS_FREQ_MHZ_CLK_RTL,
-        TIME_STEP_US     => SPS_TIME_STEP_US,
-        PACKET_SIZE      => SPS_PACKET_SIZE,
-        DWIDTH           => SPS_DWIDTH
+        FREQ_MHZ_CLK_RTL   => FREQ_MHZ_CLK_RTL,
+        TIME_STEP_US       => TIME_STEP_US_SPS,
+        PACKET_SIZE        => PACKET_SIZE_SPS,
+        DWIDTH_SPS         => DWIDTH_SPS,
+        DWIDTH_TS          => DWIDTH_TS,
+        DWIDTH_ID          => DWIDTH_ID,
+        AWIDTH_FIFO_SPS2PL => AWIDTH_FIFO_SPS2PL,
+        NB_CHANNELS        => NB_CHANNELS
     )
     port map(
-        clk_rtl       => clk_pl,
-        proc_reset    => srst_pl_dom_pl,
-        en_core       => en_core_dom_pl,
-        M_AXIS_ACLK   => M_AXIS_SPS2PS_ACLK,
-        M_AXIS_TVALID => M_AXIS_SPS2PS_TVALID,
-        M_AXIS_TREADY => M_AXIS_SPS2PS_TREADY,
-        M_AXIS_TDATA  => M_AXIS_SPS2PS_TDATA,
-        M_AXIS_TLAST  => M_AXIS_SPS2PS_TLAST,
-        fifo_rcnt     => dma_sps2ps_fifo_rcnt,
-        intr_wr_done  => dma_sps2ps_wr_done_intr
+        clk_rtl        => clk_pl,
+        proc_reset     => srst_pl_dom_pl,
+        en_core        => en_core_dom_pl,
+        ts_tick        => ts_tick_dom_pl,
+
+        M_AXIS_ACLK    => M_AXIS_SPS2PS_ACLK,
+        M_AXIS_ARESETN => M_AXIS_SPS2PS_ARESETN,
+        M_AXIS_TVALID  => M_AXIS_SPS2PS_TVALID,
+        M_AXIS_TREADY  => M_AXIS_SPS2PS_TREADY,
+        M_AXIS_TDATA   => M_AXIS_SPS2PS_TDATA,
+        M_AXIS_TLAST   => M_AXIS_SPS2PS_TLAST,
+
+        S_AXIS_ACLK    => S_AXIS_SPS2PL_ACLK,
+        S_AXIS_ARESETN => S_AXIS_SPS2PL_ARESETN,
+        S_AXIS_TREADY  => S_AXIS_SPS2PL_TREADY,
+        S_AXIS_TDATA   => S_AXIS_SPS2PL_TDATA,
+        S_AXIS_TLAST   => S_AXIS_SPS2PL_TLAST,
+        S_AXIS_TVALID  => S_AXIS_SPS2PL_TVALID,
+
+        wr_en_sps2pl      => dma_sps2pl_wr_en,
+        wr_cnt_fifo_sps2l => dma_sps2pl_wr_cnt_fifo,
+
+        fifo_rcnt      => dma_sps2ps_fifo_rcnt,
+        intr_wr_done   => dma_sps2ps_wr_done_intr
     );
-
-
-    S_AXIS_SPS2PL_TREADY <= '1';
 
 end architecture;

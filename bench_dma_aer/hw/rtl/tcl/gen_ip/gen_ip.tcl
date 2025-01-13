@@ -3,13 +3,31 @@ proc gen_ip {board vivado_ver main_tcl_path} {
     source $main_tcl_path/utils/futils.tcl
 
     # Extract parameters from VHDL files
+    # ============================
+    # DMA spikes AER
+    # ============================
+    # Spikes to PL
     set DEPTH_FIFO_SPK2PL  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK2PL]
     set DWIDTH_FIFO_SPK2PL [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK2PL]
     set AWIDTH_FIFO_SPK2PL [futils::clog2 $DEPTH_FIFO_SPK2PL]
 
+    # Spikes to PS
     set DEPTH_FIFO_SPK2PS  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPK2PS]
     set DWIDTH_FIFO_SPK2PS [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPK2PS]
 
+    # ============================
+    # DMA samples
+    # ============================
+    # Samples to PL
+    set DEPTH_FIFO_SPS2PL  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPS2PL]
+    set DWIDTH_FIFO_SPS2PL [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPS2PL]
+    set AWIDTH_FIFO_SPS2PL [futils::clog2 $DEPTH_FIFO_SPS2PL]
+
+    # Samples to PS
+    set DEPTH_FIFO_SPS2PS  [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DEPTH_FIFO_SPS2PS]
+    set DWIDTH_FIFO_SPS2PS [futils::parse_vhdl_generic $main_tcl_path/../src/hdl/common/axidma_pkg.vhd DWIDTH_FIFO_SPS2PS]
+
+    # Display generics
     set len_header_line 60
     puts [string repeat "=" $len_header_line]
     puts "Generate IP with the following generics:\n"
@@ -21,6 +39,17 @@ proc gen_ip {board vivado_ver main_tcl_path} {
 
     puts "DEPTH_FIFO_SPK2PS:  $DEPTH_FIFO_SPK2PS"
     puts "DWIDTH_FIFO_SPK2PS: $DWIDTH_FIFO_SPK2PS"
+    puts [string repeat "-" 5]
+
+    puts "DEPTH_FIFO_SPS2PL:  $DEPTH_FIFO_SPS2PL"
+    puts "DWIDTH_FIFO_SPS2PL: $DWIDTH_FIFO_SPS2PL"
+    puts "AWIDTH_FIFO_SPS2PL: $AWIDTH_FIFO_SPS2PL"
+    puts [string repeat "-" 5]
+
+    puts "DEPTH_FIFO_SPS2PS:  $DEPTH_FIFO_SPS2PS"
+    puts "DWIDTH_FIFO_SPS2PS: $DWIDTH_FIFO_SPS2PS"
+    puts [string repeat "-" 5]
+    
     puts [string repeat "=" $len_header_line]
 
     # Check if IP support is defined for a given board and version
@@ -56,9 +85,24 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.synchronization_stages {2} \
                     ] [get_ips nat_fifo_cdc_dma_spk2ps_ip_zynqmp]
 
+                    # Dual clock native interface FIFO from PS via DMA
+                    create_ip -name fifo_generator -vendor xilinx.com -library ip -version 13.2 -module_name nat_fifo_cdc_dma_sps2pl_ip_zynqmp
+                    set_property -dict [list \
+                    CONFIG.Fifo_Implementation {Independent_Clocks_Block_RAM} \
+                    CONFIG.Performance_Options {First_Word_Fall_Through} \
+                    CONFIG.Use_Embedded_Registers {true} \
+                    CONFIG.Input_Depth $DEPTH_FIFO_SPS2PL \
+                    CONFIG.Input_Data_Width $DWIDTH_FIFO_SPS2PL \
+                    CONFIG.Enable_Reset_Synchronization {true} \
+                    CONFIG.Enable_Safety_Circuit {true} \
+                    CONFIG.Write_Data_Count {true} \
+                    CONFIG.Read_Data_Count {true} \
+                    ] [get_ips nat_fifo_cdc_dma_sps2pl_ip_zynqmp]
+
+                    # Dual clock axis data FIFO from PL -> PS via DMA
                     create_ip -name axis_data_fifo -vendor xilinx.com -library ip -version 2.0 -module_name axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp
                     set_property -dict [list \
-                    CONFIG.FIFO_DEPTH {16384} \
+                    CONFIG.FIFO_DEPTH $DEPTH_FIFO_SPS2PS \
                     CONFIG.FIFO_MEMORY_TYPE {block} \
                     CONFIG.FIFO_MODE {2} \
                     CONFIG.HAS_RD_DATA_COUNT {1} \
@@ -123,6 +167,38 @@ proc gen_ip {board vivado_ver main_tcl_path} {
                     CONFIG.ENABLE_WRITE_ACK {false} \
                     CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPK2PS \
                     ] [get_ips nat_fifo_cdc_dma_spk2ps_ip_versal]
+
+                    # Dual clock native interface FIFO from PS via DMA
+                    create_ip -name emb_fifo_gen -vendor xilinx.com -library ip -version 1.0 -module_name nat_fifo_cdc_dma_sps2pl_ip_versal
+                    set_property -dict [list \
+                    CONFIG.INTERFACE_TYPE {Native} \
+                    CONFIG.FIFO_MEMORY_TYPE {BRAM} \
+                    CONFIG.READ_MODE {FWFT} \
+                    CONFIG.CLOCK_DOMAIN {Independent_Clock} \
+                    CONFIG.ENABLE_ALMOST_EMPTY {false} \
+                    CONFIG.ENABLE_ALMOST_FULL {false} \
+                    CONFIG.ENABLE_OVERFLOW {false} \
+                    CONFIG.ENABLE_DATA_COUNT {false} \
+                    CONFIG.ENABLE_WRITE_DATA_COUNT {false} \
+                    CONFIG.ENABLE_PROGRAMMABLE_EMPTY {false} \
+                    CONFIG.ENABLE_PROGRAMMABLE_FULL {false} \
+                    CONFIG.ENABLE_READ_DATA_COUNT {false} \
+                    CONFIG.ENABLE_READ_DATA_VALID {false} \
+                    CONFIG.ENABLE_UNDERFLOW {false} \
+                    CONFIG.ENABLE_WRITE_ACK {false} \
+                    CONFIG.FIFO_WRITE_DEPTH $DEPTH_FIFO_SPS2PL \
+                    ] [get_ips nat_fifo_cdc_dma_sps2pl_ip_versal]
+
+                    # Dual clock axis data FIFO from PL -> PS via DMA
+                    create_ip -name axis_data_fifo -vendor xilinx.com -library ip -version 2.0 -module_name axis_data_fifo_cdc_dma_sps2ps_ip_versal
+                    set_property -dict [list \
+                    CONFIG.FIFO_DEPTH $DEPTH_FIFO_SPS2PS \
+                    CONFIG.FIFO_MEMORY_TYPE {block} \
+                    CONFIG.FIFO_MODE {2} \
+                    CONFIG.HAS_RD_DATA_COUNT {1} \
+                    CONFIG.IS_ACLK_ASYNC {1} \
+                    CONFIG.TDATA_NUM_BYTES {4} \
+                    ] [get_ips axis_data_fifo_cdc_dma_sps2ps_ip_zynqmp]
 
                     # AXI GPIO
                     create_ip -name axi_gpio -vendor xilinx.com -library ip -version 2.0 -module_name axigpio_dualch_intr_ip
