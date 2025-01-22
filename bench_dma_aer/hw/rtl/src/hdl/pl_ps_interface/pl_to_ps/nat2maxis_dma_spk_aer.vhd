@@ -239,8 +239,8 @@ begin
             else
                 case fsm_update_ev_counter is
                     when IDLE =>
-                        fsm_update_ev_counter <= SUB_PS_RD_EV when synced_ps_rd_events_rdy = '1' else
-                                                 ADD_PL_WR_EV when pl_count_rdy = '1' else
+                        fsm_update_ev_counter <= ADD_PL_WR_EV when pl_count_rdy = '1' else
+                                                 SUB_PS_RD_EV when synced_ps_rd_events_rdy = '1' else
                                                  IDLE;
 
                     when SUB_PS_RD_EV =>
