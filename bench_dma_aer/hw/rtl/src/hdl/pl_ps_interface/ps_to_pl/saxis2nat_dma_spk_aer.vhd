@@ -14,6 +14,7 @@
 --! @details 
 --! > **29 Nov 2024** : file creation (RB)
 --! > **12 Dec 2024** : remove unecessary sufix in signal name, add handling for fwft fifo (RB)
+--! > **23 Jan 2025** : fix fifo read for single frames by adding time stamp coutner instead of using data_counts (RB)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -31,7 +32,6 @@ entity saxis2nat_dma_spk_aer is
         clk_pl            : in std_logic;
         srst_pl           : in std_logic;
         srst_axi          : in std_logic;
-        en_core           : in std_logic;
         ts_tick           : in std_logic;
         ps_tx_dma_rdy     : in std_logic;
         count_fifo        : out std_logic_vector(AWIDTH_FIFO-1 downto 0);
@@ -54,19 +54,29 @@ end entity;
 
 architecture rtl of saxis2nat_dma_spk_aer is
     -- ========================================
+    -- Count time stamp stored
+    -- ========================================
+    type fsm_cnt_tstamp_t is (
+        IDLE,
+        PREFETCH_NB_EV,
+        WAIT_WRITE,
+        WRITE_DONE
+    );
+    signal fsm_cnt_tstamp         : fsm_cnt_tstamp_t := IDLE;
+    signal nb_tstamp_recv_dom_axi : unsigned(DWIDTH-1 downto 0) := (others => '0');
+    signal nb_tstamp_recv_dom_pl  : unsigned(DWIDTH-1 downto 0) := (others => '0');
+    signal rdy_new_frames         : std_logic := '0';
+
+    -- ========================================
     -- Decode spike in stream from PS
     -- ========================================
     type fsm_decode_spk_stream_t is (
         IDLE,
         READ_TS,
         READ_NB,
-        WAIT_DATA,
-        STREAM_TS,
-        STREAM_NB,
-        STREAM_ID
+        READ_ID
     );
-    signal reg_ts_event : std_logic_vector(DWIDTH-1 downto 0) := (others => '0');
-    signal reg_nb_event : std_logic_vector(DWIDTH-1 downto 0) := (others => '0');
+    signal nb_tstamp_proc_dom_pl : unsigned(DWIDTH-1 downto 0) := (others => '0');
     signal fsm_decode_spk_stream : fsm_decode_spk_stream_t := IDLE;
     
     -- ========================================
@@ -83,6 +93,8 @@ architecture rtl of saxis2nat_dma_spk_aer is
 begin
     -- ========================================
     -- Module assertions
+    -- 
+    -- * Checks if FIFO IP has correct signal width
     -- ========================================
     assert fifo_cdc_wr_data_count'length = count_fifo'length
     report "Discrepancy in depth of [axis_data_fifo_spk_stream_ps], please verify IP generation"
@@ -90,7 +102,10 @@ begin
 
     -- ========================================
     -- FIFO CDC to temporize stream from PS
+    --
+    -- * Redirect AXIS to CDC FIFO (AXIS <-> Native signals)
     -- ========================================
+
     -- Store AXI stream from DMA in the CDC FIFO
     axi_stream_to_native_fifo: process (s_axis_aclk)
     begin
@@ -134,7 +149,95 @@ begin
     );
 
     -- ========================================
+    -- Count time stamps written
+    --
+    -- * Count all time steps written in FIFO (cumulative)
+    -- * Move counter from write domain (AXI clock) to read domain (PL clock)
+    -- ========================================
+
+    -- Count the number of time stamps that have been written in FIFO (total)
+    proc_cnt_tstamp: process (s_axis_aclk)
+        variable cnt : integer range 0 to MAX_SPK_PER_TS := 0;
+    begin
+        if rising_edge(s_axis_aclk) then
+            if s_axis_aresetn = '0' then
+                cnt := 0;
+                fsm_cnt_tstamp <= IDLE;
+            else
+                case fsm_cnt_tstamp is
+                    -- Wait for PS write
+                    when IDLE =>
+                        cnt := 0;
+                        fsm_cnt_tstamp <= PREFETCH_NB_EV when fifo_cdc_wr_en = '1';
+                    
+                    -- Read number of events
+                    when PREFETCH_NB_EV =>
+                        cnt := to_integer(unsigned(fifo_cdc_din));
+
+                        if cnt > 1 then
+                            fsm_cnt_tstamp <= WAIT_WRITE;
+                        else
+                            fsm_cnt_tstamp <= WRITE_DONE;
+                        end if;
+
+                    -- Wait for events to be written
+                    when WAIT_WRITE =>
+                        -- Anticipate last write to update counter
+                        if cnt > 2 then
+                            cnt := cnt -1;
+                        else
+                            cnt := 0;
+                            fsm_cnt_tstamp <= WRITE_DONE;
+                        end if;
+                    
+                    -- Frame completely written in FIFO
+                    when WRITE_DONE =>
+                        fsm_cnt_tstamp <= IDLE;
+                end case;
+            end if;
+        end if;
+    end process;
+    
+    -- Update time stamp counter in AXI clock domain
+    update_tstamp_counter_dom_axi : process (s_axis_aclk) is
+    begin
+        if rising_edge(s_axis_aclk) then
+            if s_axis_aresetn = '0' then
+                nb_tstamp_recv_dom_axi <= (others => '0');
+            else
+                if fsm_cnt_tstamp = WRITE_DONE then
+                    nb_tstamp_recv_dom_axi <= nb_tstamp_recv_dom_axi +1;
+                end if;
+            end if;
+        end if;
+    end process update_tstamp_counter_dom_axi;
+
+    -- Update time stamp counter in PL clock domain
+    cdc_tstamp_counter_dom_pl : if true generate
+        signal ff1 : unsigned(DWIDTH-1 downto 0) := (others => '0');
+        signal ff2 : unsigned(DWIDTH-1 downto 0) := (others => '0');
+    begin
+        process (clk_pl) is
+        begin
+            if rising_edge(clk_pl) then
+                if srst_pl = '1' then
+                    ff1 <= (others => '0');
+                    ff2 <= (others => '0');  
+                else
+                    ff1 <= nb_tstamp_recv_dom_axi;
+                    ff2 <= ff1;
+                end if;
+            end if;
+        end process;
+
+        nb_tstamp_recv_dom_pl <= ff2;
+    end generate cdc_tstamp_counter_dom_pl;
+
+    -- ========================================
     -- Decode spike in stream from FIFO
+    --
+    -- * Read data from FIFO
+    -- * Stream FIFO data as a "structured" stream
     -- ========================================
     decode_stream_cdc_fifo: process (clk_pl)
         variable rd_cnt : integer range 0 to MAX_SPK_PER_TS := 0;
@@ -142,8 +245,6 @@ begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
                 rd_cnt           := 0;
-                reg_ts_event     <= (others => '0');
-                reg_nb_event     <= (others => '0');
                 
                 fifo_cdc_rd_en <= '0';
                 fsm_decode_spk_stream <= IDLE;
@@ -154,7 +255,7 @@ begin
                         rd_cnt := 0;
                         
                         -- Read samples @ time step if data available in FIFO
-                        if unsigned(fifo_cdc_wr_data_count) >= 2 and ts_tick = '1' then
+                        if rdy_new_frames = '1' and ts_tick = '1' then
                             fifo_cdc_rd_en        <= '1';
                             fsm_decode_spk_stream <= READ_TS;
                         else
@@ -163,36 +264,15 @@ begin
                     
                     -- Read time stamp
                     when READ_TS =>
-                        reg_ts_event <= fifo_cdc_dout;
                         fsm_decode_spk_stream <= READ_NB;
 
                     -- Read number of events
                     when READ_NB =>
-                        rd_cnt              := to_integer(unsigned(fifo_cdc_dout));
-                        reg_nb_event        <= fifo_cdc_dout;
-                        
-                        -- continue reading only if enough data for a complete frame
-                        fifo_cdc_rd_en        <= '0';
-                        fsm_decode_spk_stream <= WAIT_DATA;
+                        rd_cnt                := to_integer(unsigned(fifo_cdc_dout));
+                        fsm_decode_spk_stream <= READ_ID;
                     
-                    -- Wait for data to be written in FIFO by PS
-                    when WAIT_DATA =>
-                        fifo_cdc_rd_en <= '0';
-                        if  unsigned(fifo_cdc_rd_data_count) >= rd_cnt then
-                            fsm_decode_spk_stream <= STREAM_TS;
-                        end if;
-
-                    -- Stream time stamp
-                    when STREAM_TS =>
-                        fifo_cdc_rd_en        <= '0';
-                        fsm_decode_spk_stream <= STREAM_NB;
-                    
-                    when STREAM_NB =>
-                        fifo_cdc_rd_en        <= '1';
-                        fsm_decode_spk_stream <= STREAM_ID;
-
-                    -- Read channel index
-                    when STREAM_ID =>
+                    -- Read events
+                    when READ_ID =>
                         -- Disable read from fifo (considering fifo reading latency)
                         if rd_cnt <= 1 then -- +1 for ccy
                             fifo_cdc_rd_en <= '0';
@@ -210,13 +290,31 @@ begin
         end if;
     end process;
 
+    -- Count frames processed
+    update_frames_processed : process (clk_pl) is
+    begin
+        if rising_edge(clk_pl) then
+            if srst_pl = '1' then
+                nb_tstamp_proc_dom_pl <= (others => '0');
+            else
+                if fsm_decode_spk_stream = READ_TS then
+                    nb_tstamp_proc_dom_pl <= nb_tstamp_proc_dom_pl +1;
+                end if;
+            end if;
+        end if;
+    end process update_frames_processed;
+    
+    -- Notify if new frames available to read
+    rdy_new_frames <=  '1' when nb_tstamp_recv_dom_pl > nb_tstamp_proc_dom_pl
+                           else '0'; 
+
     -- MUX FIFO ouptput
-    rdy_events <= '1' when fsm_decode_spk_stream = STREAM_TS or
-                           fsm_decode_spk_stream = STREAM_NB or
-                           fsm_decode_spk_stream = STREAM_ID 
+    rdy_events <= '1' when fsm_decode_spk_stream = READ_TS or
+                           fsm_decode_spk_stream = READ_NB or
+                           fsm_decode_spk_stream = READ_ID 
                       else '0';
-    ts_event   <= reg_ts_event  when fsm_decode_spk_stream = STREAM_TS else (others=>'0');
-    nb_event   <= reg_nb_event  when fsm_decode_spk_stream = STREAM_NB else (others=>'0');
-    id_event   <= fifo_cdc_dout when fsm_decode_spk_stream = STREAM_ID else (others=>'0');
+    ts_event   <= fifo_cdc_dout when fsm_decode_spk_stream = READ_TS else (others=>'0');
+    nb_event   <= fifo_cdc_dout when fsm_decode_spk_stream = READ_NB else (others=>'0');
+    id_event   <= fifo_cdc_dout when fsm_decode_spk_stream = READ_ID else (others=>'0');
 
 end architecture;

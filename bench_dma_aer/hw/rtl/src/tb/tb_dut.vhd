@@ -36,7 +36,7 @@ architecture bench of tb_dut_spk_aer is
     signal srst_axi          : std_logic := '0';
     signal en_core           : std_logic;
     signal en_ps_rd_events   : std_logic;
-    signal ps_tx_dma_rdy     : std_logic;
+    signal ps_tx_dma_rdy     : std_logic := '0';
     signal ps_rd_events_size : std_logic_vector(DWIDTH_AXIL_CONTROL-1 downto 0) := (others => '0');
     signal pl_wr_events_size : std_logic_vector(DWIDTH_AXIL_CONTROL-1 downto 0) := (others => '0');
 
@@ -144,7 +144,7 @@ begin
     begin
         en_core             <= '0';
         wait until rising_edge(rst_over);
-        wait for clk_period_pl*40;
+        wait for clk_period_pl*60;
         en_core             <= '1';
         wait;
     end process drive_axilite_control;
@@ -153,18 +153,19 @@ begin
     -- AXI DMA write spike stream in
     -- ========================================
     drive_dma_write_spk2pl : process
-        constant NB_TSTAMP      : integer := 20;
-        constant NB_SPK_PER_TS  : integer := 1;
+        constant NB_TSTAMP      : integer := 1;
+        constant NB_SPK_PER_TS  : integer := 4;
         variable tstamp         : integer := 6666;
     begin
         S_AXIS_SPK2PL_tdata   <= (others => '0');
         S_AXIS_SPK2PL_tlast   <= '0';
         S_AXIS_SPK2PL_tvalid  <= '0';
+        ps_tx_dma_rdy         <= '0';
 
         wait until rising_edge(rst_over);
-        wait for 10*clk_period_axi;
+        wait for 20*clk_period_axi;
         ps_tx_dma_rdy <= '1';
-        wait until S_AXIS_SPK2PL_tready = '1';
+        -- wait until S_AXIS_SPK2PL_tready = '1';
 
         for I in 0 to NB_TSTAMP-1 loop
             -- write time stamp
@@ -180,7 +181,7 @@ begin
             -- write spk events
             for J in 0 to NB_SPK_PER_TS-1 loop
 
-                S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(J, DWIDTH_SPK2PL));
+                S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(MAX_SPK_PER_TS-J, DWIDTH_SPK2PL));
                 if J = NB_SPK_PER_TS-1 then
                     S_AXIS_SPK2PL_tlast <= '1';
                 end if;
@@ -196,34 +197,6 @@ begin
         wait for clk_period_axi;
         wait;
 
-        -- for I in 0 to NB_TSTAMP-1 loop
-        --     -- write time stamp
-        --     S_AXIS_SPK2PL_tvalid    <= '1';
-        --     S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(tstamp, DWIDTH_SPK2PL));
-        --     S_AXIS_SPK2PL_tlast     <= '0';
-        --     wait for clk_period_axi;
-
-        --     -- write nb of events
-        --     S_AXIS_SPK2PL_tdata     <= std_logic_vector(to_unsigned(NB_SPK_PER_TS, DWIDTH_SPK2PL));
-        --     wait for clk_period_axi;
-
-        --     -- write spk events
-        --     for J in 0 to NB_SPK_PER_TS-1 loop
-
-        --         S_AXIS_SPK2PL_tdata <= std_logic_vector(to_unsigned(J, DWIDTH_SPK2PL));
-        --         if J = NB_SPK_PER_TS-1 then
-        --             S_AXIS_SPK2PL_tlast <= '1';
-        --         end if;
-                
-        --         wait for clk_period_axi;
-        --     end loop;
-            
-        --     S_AXIS_SPK2PL_tvalid    <= '0';
-        --     S_AXIS_SPK2PL_tdata     <= (others => '0');
-        --     S_AXIS_SPK2PL_tlast     <= '0';
-        --     tstamp := tstamp + 1;
-        -- end loop;
-        
     end process drive_dma_write_spk2pl;
     
     

@@ -38,6 +38,7 @@
 --! @details 
 --! > **29 Nov 2024** : file creation (RB)
 --! > **13 Jan 2025** : patch event counter (RB)
+--! > **22 Jan 2025** : patch counter update shifted by 1 ts (RB)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -240,8 +241,8 @@ begin
                 case fsm_update_ev_counter is
                     when IDLE =>
                         fsm_update_ev_counter <= ADD_PL_WR_EV when pl_count_rdy = '1' else
-                                                 SUB_PS_RD_EV when synced_ps_rd_events_rdy = '1' else
-                                                 IDLE;
+                                                 SUB_PS_RD_EV when synced_ps_rd_events_rdy = '1' 
+                                                              else IDLE;
 
                     when SUB_PS_RD_EV =>
                         fsm_update_ev_counter <= ADD_PL_WR_EV when pl_count_rdy = '1' 
@@ -256,7 +257,7 @@ begin
 
     -- Update counter value
     update_counter : process (clk_pl) is
-        variable cnt : unsigned(DWIDTH_GPIO-1 downto 0);
+        variable cnt : unsigned(DWIDTH_GPIO-1 downto 0) := (others => '0');
     begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
@@ -267,6 +268,8 @@ begin
                     cnt := cnt - unsigned(synced_ps_rd_events_size);
                 elsif fsm_update_ev_counter = ADD_PL_WR_EV then
                     cnt := cnt + pl_ev_cnt_cur_ts;
+                else
+                    cnt := cnt;
                 end if;
                 pl_wr_events_size <= std_logic_vector(cnt);
             end if;
@@ -303,24 +306,25 @@ begin
         end if;
     end process proc_fsm_count_pl_events;
 
-    pl_count_rdy <= '1' when fsm_count_pl_events = RDY 
-                        else '0';
-
     count_current_ts_pl_wr_ev : process (clk_pl) is
         variable cnt : integer range 0 to MAX_SPK_PER_TS+2-1 := 0;
     begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
                 cnt := 0;
+                pl_count_rdy <= '0';
                 pl_ev_cnt_cur_ts <= (others => '0');
             else
                 if fsm_count_pl_events = IDLE then
                     cnt := 0;
                 elsif fsm_count_pl_events = COUNT then
                     cnt := cnt + 1;
-                else
+                elsif fsm_count_pl_events = RDY then
                     pl_ev_cnt_cur_ts <= to_unsigned(cnt, pl_ev_cnt_cur_ts'length);
                 end if;
+
+                pl_count_rdy <= '1' when fsm_count_pl_events = RDY 
+                                    else '0';
             end if;
         end if;
     end process count_current_ts_pl_wr_ev;
@@ -360,6 +364,7 @@ begin
                     when SYNC_PS_READ_SIZE =>
                         synced_ps_rd_events_size <= ps_rd_events_size;
 
+                        -- extra security in case axi write for size comes after wr en
                         if unsigned(ps_rd_events_size) > 0 then
                             fsm_sync_ps_read_cnt <= WAIT_PROCCESS_READ;
                         end if;

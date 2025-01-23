@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <string.h>
 #include <algorithm>
+#include <vector>
 
 #include <unistd.h>
 #include <sys/ioctl.h>

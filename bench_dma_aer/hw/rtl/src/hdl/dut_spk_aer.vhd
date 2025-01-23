@@ -123,7 +123,7 @@ begin
     -- Generate time steps
     ---------------------------------------------------------------------------------------
     timer_proc : process(clk_pl)
-        variable cnt : integer range 0 to TIME_STEP_CCY;
+        variable cnt : integer range 0 to TIME_STEP_CCY := TIME_STEP_CCY;
     begin
         if rising_edge(clk_pl) then
             if srst_pl = '1' then
@@ -166,7 +166,6 @@ begin
         clk_pl                => clk_pl,
         srst_pl               => srst_pl,
         srst_axi              => srst_axi,
-        en_core               => en_core,
         ts_tick               => ts_tick,
         ps_tx_dma_rdy         => ps_tx_dma_rdy,
         count_fifo            => count_fifo_spk2pl,
