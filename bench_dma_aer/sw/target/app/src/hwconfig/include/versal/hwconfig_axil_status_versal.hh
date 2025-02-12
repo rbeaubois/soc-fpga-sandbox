@@ -5,6 +5,12 @@
 #define __HWCONFIG_AXIL_STATUS_VERSAL_H__
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Address mapping
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#define OFFSET_AXILITE_STATUS "0xA0030000"
+#define RANGE_AXILITE_STATUS "64K"
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Registers mapping
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #define REGW_DUMMY_BASE 0

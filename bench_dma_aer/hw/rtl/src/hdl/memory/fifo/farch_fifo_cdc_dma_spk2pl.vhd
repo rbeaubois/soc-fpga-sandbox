@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 use work.system_pkg.FPGA_ARCH;
 use work.fpga_arch_pkg.fpga_arch_t;
 
-entity farch_nat_fifo_spk_stream_from_ps is
+entity farch_fifo_cdc_dma_spk2pl is
     generic(
         DWIDTH: integer;
         AWIDTH: integer
@@ -22,18 +22,19 @@ entity farch_nat_fifo_spk_stream_from_ps is
         empty         : out std_logic;
         wr_rst_busy   : out std_logic;
         rd_rst_busy   : out std_logic;
+        rd_data_count : out std_logic_vector(AWIDTH-1 downto 0);
         wr_data_count : out std_logic_vector(AWIDTH-1 downto 0)
     );
-end entity farch_nat_fifo_spk_stream_from_ps;
+end entity farch_fifo_cdc_dma_spk2pl;
 
-architecture RTL of farch_nat_fifo_spk_stream_from_ps is
+architecture RTL of farch_fifo_cdc_dma_spk2pl is
     -- Instanciation templates from IP catalog
     -- depending on FPGA architecture
 
     -- ==============================
     -- ZynqMP
     -- ==============================
-    component nat_fifo_spk_stream_from_ps_ip_zynqmp
+    component nat_fifo_cdc_dma_spk2pl_ip_zynqmp
     port (
         rst           : in std_logic;
         wr_clk        : in std_logic;
@@ -46,6 +47,7 @@ architecture RTL of farch_nat_fifo_spk_stream_from_ps is
         empty         : out std_logic;
         wr_rst_busy   : out std_logic;
         rd_rst_busy   : out std_logic;
+        rd_data_count : out std_logic_vector(AWIDTH-1 downto 0);
         wr_data_count : out std_logic_vector(AWIDTH-1 downto 0)
     );
     end component;
@@ -53,7 +55,7 @@ architecture RTL of farch_nat_fifo_spk_stream_from_ps is
     -- ==============================
     -- Versal
     -- ==============================
-    component nat_fifo_spk_stream_from_ps_ip_versal
+    component nat_fifo_cdc_dma_spk2pl_ip_versal
     port (
         rst             : in std_logic;
         wr_clk          : in std_logic;
@@ -66,12 +68,13 @@ architecture RTL of farch_nat_fifo_spk_stream_from_ps is
         rd_rst_busy     : out std_logic;
         full            : out std_logic;
         empty           : out std_logic;
+        rd_data_count   : out std_logic_vector(AWIDTH-1 downto 0);
         wr_data_count   : out std_logic_vector(AWIDTH-1 downto 0)
     );
     end component;
 begin
-    gen_farch_nat_fifo_spk_stream_from_ps : if FPGA_ARCH = ZYNQMP generate
-        farch_nat_fifo_spk_stream_from_ps_zynqmp : nat_fifo_spk_stream_from_ps_ip_zynqmp
+    gen_farch_fifo_cdc_dma_spk2pl : if FPGA_ARCH = ZYNQMP generate
+        farch_fifo_cdc_dma_spk2pl_zynqmp : nat_fifo_cdc_dma_spk2pl_ip_zynqmp
         port map (
             rst             => rst,
             wr_clk          => wr_clk,
@@ -82,12 +85,13 @@ begin
             dout            => dout,
             full            => full,
             empty           => empty,
+            rd_data_count   => rd_data_count,
             wr_data_count   => wr_data_count,
             wr_rst_busy     => open,
             rd_rst_busy     => open
         );
     elsif FPGA_ARCH = VERSAL generate
-        farch_nat_fifo_spk_stream_from_ps_versal : nat_fifo_spk_stream_from_ps_ip_versal
+        farch_fifo_cdc_dma_spk2pl_versal : nat_fifo_cdc_dma_spk2pl_ip_versal
         port map (
             rst             => rst,
             wr_clk          => wr_clk,
@@ -100,7 +104,8 @@ begin
             rd_rst_busy     => rd_rst_busy,
             full            => full,
             empty           => empty,
+            rd_data_count   => rd_data_count,
             wr_data_count   => wr_data_count
         );
-    end generate gen_farch_nat_fifo_spk_stream_from_ps;
+    end generate gen_farch_fifo_cdc_dma_spk2pl;
 end architecture RTL;

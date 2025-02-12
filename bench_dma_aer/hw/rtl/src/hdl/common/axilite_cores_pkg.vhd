@@ -91,7 +91,9 @@ package body axlmap_control is
                              cname       => "control",
                              dirpath     => H_HWCONFIG_DIRPATH,
                              fname       => "hwconfig_axil",
-                             fpga_arch   => farch_to_str(FPGA_ARCH)
+                             fpga_arch   => farch_to_str(FPGA_ARCH),
+                             addr_offset => "0xA0020000",
+                             addr_range  => "64K"
                             );
         axlmap.DWIDTH       := axlmapper.get_data_width;   -- DON'T TOUCH
         axlmap.AWIDTH       := axlmapper.get_addr_width;   -- DON'T TOUCH
@@ -198,7 +200,9 @@ package body axlmap_status is
                              cname       => "status",
                              dirpath     => H_HWCONFIG_DIRPATH,
                              fname       => "hwconfig_axil",
-                             fpga_arch   => farch_to_str(FPGA_ARCH)
+                             fpga_arch   => farch_to_str(FPGA_ARCH),
+                             addr_offset => "0xA0030000",
+                             addr_range  => "64K"
                             );
         axlmap.DWIDTH       := axlmapper.get_data_width;   -- DON'T TOUCH
         axlmap.AWIDTH       := axlmapper.get_addr_width;   -- DON'T TOUCH

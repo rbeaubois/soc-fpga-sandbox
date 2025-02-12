@@ -9,24 +9,36 @@ use work.axilite_mapper_pkg.MAX_AWIDTH_AXIL;
 
 entity top is
     generic (
-        DWIDTH_GPIO         : integer :=       32;
-        DWIDTH_DATA         : integer :=       32;
-        DWIDTH_SPK_IN       : integer :=       32;
-        DWIDTH_SPK_MON      : integer :=       32;
-        DWIDTH_AXIL_CONTROL : integer :=       32;
-		AWDITH_AXIL_CONTROL : integer :=       16;
-        DWIDTH_AXIL_STATUS  : integer :=       32;
-		AWDITH_AXIL_STATUS  : integer :=       16;
-        AWIDTH_FIFO_SPK_IN  : integer :=       10;
-        LAT_RD_CDC_FIFO     : integer :=        2;
-        MAX_SPK_PER_TS      : integer :=     1000;
-        TIME_STEP_CCY       : integer :=    12500
+        FREQ_MHZ_CLK_RTL    : integer :=   400;
+
+        DWIDTH_GPIO         : integer :=    32;
+        DWIDTH_DATA         : integer :=    32;
+        DWIDTH_SPK2PL       : integer :=    32;
+        DWIDTH_SPK2PS       : integer :=    32;
+        DWIDTH_AXIL_CONTROL : integer :=    32;
+		AWDITH_AXIL_CONTROL : integer :=    16;
+        DWIDTH_AXIL_STATUS  : integer :=    32;
+		AWDITH_AXIL_STATUS  : integer :=    16;
+        AWIDTH_FIFO_SPK2PL  : integer :=    10;
+        MAX_SPK_PER_TS      : integer :=  1000;
+        TIME_STEP_CCY       : integer := 12500;
+        
+        TIME_STEP_US_SPS    : integer := 500;
+        PACKET_SIZE_SPS     : integer := 32;
+        DWIDTH_SPS          : integer := 32;
+        DWIDTH_TS           : integer := 32;
+        DWIDTH_ID           : integer := 32;
+        AWIDTH_FIFO_SPS2PL  : integer := 13;
+        NB_CHANNELS         : integer := 64
     );
     port (
         -- Clock
         clk_pl          : in std_logic;
         clk_axi         : in std_logic;
 
+        -- ================================
+        -- AXI-Lite
+        -- ================================
         -- AXI-Lite: Control
         S_AXI_LITE_CONTROL_ACLK        : in std_logic;
         S_AXI_LITE_CONTROL_ARESETN     : in std_logic;
@@ -73,34 +85,66 @@ entity top is
         S_AXI_LITE_STATUS_RVALID      : out std_logic;
         S_AXI_LITE_STATUS_RREADY      : in std_logic;
 
+        -- ================================
+        -- DMA spikes AER
+        -- ================================
         -- Spike stream from PS via DMA
-        S_AXIS_SPK_IN_ACLK     : in std_logic;
-        S_AXIS_SPK_IN_ARESETN  : in std_logic;
-        S_AXIS_SPK_IN_TREADY   : out std_logic;
-        S_AXIS_SPK_IN_TDATA    : in std_logic_vector(DWIDTH_SPK_IN-1 downto 0);
-        S_AXIS_SPK_IN_TLAST    : in std_logic;
-        S_AXIS_SPK_IN_TVALID   : in std_logic;
+        S_AXIS_SPK2PL_ACLK     : in std_logic;
+        S_AXIS_SPK2PL_ARESETN  : in std_logic;
+        S_AXIS_SPK2PL_TREADY   : out std_logic;
+        S_AXIS_SPK2PL_TDATA    : in std_logic_vector(DWIDTH_SPK2PL-1 downto 0);
+        S_AXIS_SPK2PL_TLAST    : in std_logic;
+        S_AXIS_SPK2PL_TVALID   : in std_logic;
 
         -- Spike monitoring to DMA
-        M_AXIS_SPK_MON_ACLK     : in std_logic;
-        M_AXIS_SPK_MON_ARESETN  : in std_logic;
-        M_AXIS_SPK_MON_TVALID   : out std_logic;
-        M_AXIS_SPK_MON_TREADY   : in std_logic;
-        M_AXIS_SPK_MON_TDATA    : out std_logic_vector(DWIDTH_SPK_MON-1 downto 0);
-        M_AXIS_SPK_MON_TLAST    : out std_logic;
+        M_AXIS_SPK2PS_ACLK     : in std_logic;
+        M_AXIS_SPK2PS_ARESETN  : in std_logic;
+        M_AXIS_SPK2PS_TVALID   : out std_logic;
+        M_AXIS_SPK2PS_TREADY   : in std_logic;
+        M_AXIS_SPK2PS_TDATA    : out std_logic_vector(DWIDTH_SPK2PS-1 downto 0);
+        M_AXIS_SPK2PS_TLAST    : out std_logic;
 
         -- AXI GPIO: free slots DMA spikes transfers to PL
-        dma_spk_i_fifo2pl_free_slots_pl      : out std_logic_vector(DWIDTH_GPIO-1 downto 0);
-        dma_spk_i_fifo2pl_used_slots_ps      : in  std_logic_vector(DWIDTH_GPIO-1 downto 0);
-        dma_spk_i_fifo2pl_free_slots_pl_intr : out std_logic;
-        dma_spk_i_fifo2pl_used_slots_ps_intr : in  std_logic;
+        dma_spk2pl_fifo_free_slots_pl      : out std_logic_vector(DWIDTH_GPIO-1 downto 0);
+        dma_spk2pl_fifo_used_slots_ps      : in  std_logic_vector(DWIDTH_GPIO-1 downto 0);
+        dma_spk2pl_fifo_free_slots_pl_intr : out std_logic;
+        dma_spk2pl_fifo_used_slots_ps_intr : in  std_logic;
 
         -- AXI GPIO: events available DMA spikes transfers to PS
-        dma_spk_o_fifo2ps_size_wr_ev_pl      : out std_logic_vector(DWIDTH_GPIO-1 downto 0);
-        dma_spk_o_fifo2ps_size_rd_ev_ps      : in  std_logic_vector(DWIDTH_GPIO-1 downto 0);
-        dma_spk_o_fifo2ps_wr_ev_pl_intr      : out std_logic;
-        dma_spk_o_fifo2ps_rd_ev_ps_intr      : in  std_logic;
+        dma_spk2ps_fifo_size_wr_ev_pl      : out std_logic_vector(DWIDTH_GPIO-1 downto 0);
+        dma_spk2ps_fifo_size_rd_ev_ps      : in  std_logic_vector(DWIDTH_GPIO-1 downto 0);
+        dma_spk2ps_fifo_wr_ev_pl_intr      : out std_logic;
+        dma_spk2ps_fifo_rd_ev_ps_intr      : in  std_logic;
+
+        -- ================================
+        -- DMA samples
+        -- ================================
+        -- Samples from PS via DMA
+        S_AXIS_SPS2PL_ACLK     : in std_logic;
+        S_AXIS_SPS2PL_ARESETN  : in std_logic;
+        S_AXIS_SPS2PL_TREADY   : out std_logic;
+        S_AXIS_SPS2PL_TDATA    : in std_logic_vector(DWIDTH_SPS-1 downto 0);
+        S_AXIS_SPS2PL_TLAST    : in std_logic;
+        S_AXIS_SPS2PL_TVALID   : in std_logic;
+
+        -- Samples to PS via DMA
+        M_AXIS_SPS2PS_ACLK     : in std_logic;
+        M_AXIS_SPS2PS_ARESETN  : in std_logic;
+        M_AXIS_SPS2PS_TVALID   : out std_logic;
+        M_AXIS_SPS2PS_TREADY   : in std_logic;
+        M_AXIS_SPS2PS_TDATA    : out std_logic_vector(DWIDTH_SPS-1 downto 0);
+        M_AXIS_SPS2PS_TLAST    : out std_logic;
+
+        -- AXI GPIO: samples available
+        dma_sps2ps_fifo_rcnt    : out std_logic_vector(DWIDTH_SPS-1 downto 0);
+        dma_sps2ps_wr_done_intr : out std_logic;
+
+        dma_sps2pl_wr_en        : in std_logic;
+        dma_sps2pl_wr_cnt_fifo  : out std_logic_vector(AWIDTH_FIFO_SPS2PL-1 downto 0);
         
+        -- ================================
+        -- GPIOs
+        -- ================================
         -- User LEDs
         uled_uf1 : out std_logic;
         uled_uf2 : out std_logic;
@@ -121,7 +165,7 @@ architecture rtl of top is
     signal ts_pl_wr_ev_intr_dom_pl   : std_logic;
     signal ts_tick_dom_pl            : std_logic;
     signal pl_wr_events_size_dom_pl  : std_logic_vector(DWIDTH_GPIO-1 downto 0);
-    signal count_fifo_spk_in_dom_axi : std_logic_vector(AWIDTH_FIFO_SPK_IN-1 downto 0);
+    signal count_fifo_spk2pl_dom_axi : std_logic_vector(AWIDTH_FIFO_SPK2PL-1 downto 0);
     -- CDC to external modules
     signal ts_tick_dom_axi           : std_logic;
     signal ts_pl_wr_ev_intr_dom_axi  : std_logic;
@@ -184,35 +228,35 @@ begin
     -- ========================
     -- Generate interrupt when free slots cross threhsold and return nb free slots
     free_slots_to_pl : process (clk_axi) is
-        constant FIFO_DEPTH : unsigned(DWIDTH_GPIO-1 downto 0) := to_unsigned(work.axidma_pkg.DEPTH_FIFO_SPK_IN, DWIDTH_GPIO);
+        constant FIFO_DEPTH : unsigned(DWIDTH_GPIO-1 downto 0) := to_unsigned(work.axidma_pkg.DEPTH_FIFO_SPK2PL, DWIDTH_GPIO);
         variable free_slots : unsigned(DWIDTH_GPIO-1 downto 0); 
     begin
         if rising_edge(clk_axi) then
             if srst_axi_dom_axi = '1' then
                 free_slots := (others => '0');
-                dma_spk_i_fifo2pl_free_slots_pl_intr <= '0';
+                dma_spk2pl_fifo_free_slots_pl_intr <= '0';
             else
                 -- Calculate number of free slots
-                free_slots := FIFO_DEPTH - unsigned(count_fifo_spk_in_dom_axi);
+                free_slots := FIFO_DEPTH - unsigned(count_fifo_spk2pl_dom_axi);
 
                 -- Generate interrupt if crossing threshold
-                if free_slots > unsigned(irq_thresh_free_slots_to_pl_dom_axi) and S_AXIS_SPK_IN_TVALID = '0' then
-                    dma_spk_i_fifo2pl_free_slots_pl_intr <= '1';
+                if free_slots > unsigned(irq_thresh_free_slots_to_pl_dom_axi) and S_AXIS_SPK2PL_TVALID = '0' then
+                    dma_spk2pl_fifo_free_slots_pl_intr <= '1';
                 else
-                    dma_spk_i_fifo2pl_free_slots_pl_intr <= '0';
+                    dma_spk2pl_fifo_free_slots_pl_intr <= '0';
                 end if;
             end if;
         end if;
         -- Map free slots to signal
-        dma_spk_i_fifo2pl_free_slots_pl <= std_logic_vector(free_slots);
+        dma_spk2pl_fifo_free_slots_pl <= std_logic_vector(free_slots);
     end process free_slots_to_pl;
 
     -- ========================
     -- AXI GPIO: events status to read from PS
     -- ========================
     -- Map module ports
-    en_ps_rd_events_dom_axi   <= dma_spk_o_fifo2ps_rd_ev_ps_intr;
-    ps_rd_events_size_dom_axi <= dma_spk_o_fifo2ps_size_rd_ev_ps;
+    en_ps_rd_events_dom_axi   <= dma_spk2ps_fifo_rd_ev_ps_intr;
+    ps_rd_events_size_dom_axi <= dma_spk2ps_fifo_size_rd_ev_ps;
 
     -- Generate interrupt when size events ready cross threhsold and return size events
     available_events_to_ps : process (clk_axi) is
@@ -221,26 +265,26 @@ begin
         if rising_edge(clk_axi) then
             if srst_axi_dom_axi = '1' then
                 word_cnt                := (others => '0');
-                dma_spk_o_fifo2ps_wr_ev_pl_intr <= '0';
+                dma_spk2ps_fifo_wr_ev_pl_intr <= '0';
             else
                 -- Get number of events written
                 word_cnt := unsigned(pl_wr_events_size_dom_axi);
 
                 if opmode_ps_recv_dma_spk_dom_axi = dma_opmode.PERIODIC(0) then
                     -- Generate periodic interrupt when pl writes data
-                    dma_spk_o_fifo2ps_wr_ev_pl_intr <= ts_pl_wr_ev_intr_dom_axi;
+                    dma_spk2ps_fifo_wr_ev_pl_intr <= ts_pl_wr_ev_intr_dom_axi;
                 else
                     -- Generate interrupt if crossing threshold
                     if word_cnt > unsigned(irq_thresh_ready_ev_to_ps_dom_axi) then
-                        dma_spk_o_fifo2ps_wr_ev_pl_intr <= '1';
+                        dma_spk2ps_fifo_wr_ev_pl_intr <= '1';
                     else
-                        dma_spk_o_fifo2ps_wr_ev_pl_intr <= '0';
+                        dma_spk2ps_fifo_wr_ev_pl_intr <= '0';
                     end if;
                 end if;
             end if;
         end if;
         -- Map free slots to signal
-        dma_spk_o_fifo2ps_size_wr_ev_pl <= std_logic_vector(word_cnt);
+        dma_spk2ps_fifo_size_wr_ev_pl <= std_logic_vector(word_cnt);
     end process available_events_to_ps;
 
     ---------------------------------------------------------------------------------------
@@ -387,22 +431,22 @@ begin
     
     ---------------------------------------------------------------------------------------
     --
-    --  ██████  ██    ██ ████████ 
-    --  ██   ██ ██    ██    ██    
-    --  ██   ██ ██    ██    ██    
-    --  ██   ██ ██    ██    ██    
-    --  ██████   ██████     ██    
-    --                            
+    --  ██████  ██    ██ ████████     ███████ ██████  ██   ██      █████  ███████ ██████  
+    --  ██   ██ ██    ██    ██        ██      ██   ██ ██  ██      ██   ██ ██      ██   ██ 
+    --  ██   ██ ██    ██    ██        ███████ ██████  █████       ███████ █████   ██████  
+    --  ██   ██ ██    ██    ██             ██ ██      ██  ██      ██   ██ ██      ██   ██ 
+    --  ██████   ██████     ██        ███████ ██      ██   ██     ██   ██ ███████ ██   ██ 
+    --                                                                                    
+    --                                                                                    
     -- Device under test
     ---------------------------------------------------------------------------------------
-    dut_inst: entity work.dut
+    dut_spk_aer_inst: entity work.dut_spk_aer
         generic map(
             DWIDTH_GPIO         => DWIDTH_GPIO,
             DWIDTH_DATA         => DWIDTH_DATA,
-            DWIDTH_SPK_IN       => DWIDTH_SPK_IN,
-            DWIDTH_SPK_MON      => DWIDTH_SPK_MON,
-            AWIDTH_FIFO_SPK_IN  => AWIDTH_FIFO_SPK_IN,
-            LAT_RD_CDC_FIFO     => LAT_RD_CDC_FIFO,
+            DWIDTH_SPK2PL       => DWIDTH_SPK2PL,
+            DWIDTH_SPK2PS       => DWIDTH_SPK2PS,
+            AWIDTH_FIFO_SPK2PL  => AWIDTH_FIFO_SPK2PL,
             MAX_SPK_PER_TS      => MAX_SPK_PER_TS,
             TIME_STEP_CCY       => TIME_STEP_CCY
         )
@@ -418,27 +462,27 @@ begin
             en_core           => en_core_dom_pl,
 
             -- AXI GPIO
-            en_ps_rd_events   => en_ps_rd_events_dom_axi,
-            ps_rd_events_size => ps_rd_events_size_dom_axi,
-            ps_tx_dma_rdy     => dma_spk_i_fifo2pl_used_slots_ps_intr,
-            pl_wr_events_size => pl_wr_events_size_dom_pl,
-            count_fifo_spk_in => count_fifo_spk_in_dom_axi,
+            en_ps_rd_events    => en_ps_rd_events_dom_axi,
+            ps_rd_events_size  => ps_rd_events_size_dom_axi,
+            ps_tx_dma_rdy      => dma_spk2pl_fifo_used_slots_ps_intr,
+            pl_wr_events_size  => pl_wr_events_size_dom_pl,
+            count_fifo_spk2pl  => count_fifo_spk2pl_dom_axi,
     
             -- Spike stream from PS via DMA
-            S_AXIS_SPK_IN_ACLK     => S_AXIS_SPK_IN_ACLK,
-            S_AXIS_SPK_IN_ARESETN  => S_AXIS_SPK_IN_ARESETN,
-            S_AXIS_SPK_IN_TREADY   => S_AXIS_SPK_IN_TREADY,
-            S_AXIS_SPK_IN_TDATA    => S_AXIS_SPK_IN_TDATA,
-            S_AXIS_SPK_IN_TLAST    => S_AXIS_SPK_IN_TLAST,
-            S_AXIS_SPK_IN_TVALID   => S_AXIS_SPK_IN_TVALID,
+            S_AXIS_SPK2PL_ACLK     => S_AXIS_SPK2PL_ACLK,
+            S_AXIS_SPK2PL_ARESETN  => S_AXIS_SPK2PL_ARESETN,
+            S_AXIS_SPK2PL_TREADY   => S_AXIS_SPK2PL_TREADY,
+            S_AXIS_SPK2PL_TDATA    => S_AXIS_SPK2PL_TDATA,
+            S_AXIS_SPK2PL_TLAST    => S_AXIS_SPK2PL_TLAST,
+            S_AXIS_SPK2PL_TVALID   => S_AXIS_SPK2PL_TVALID,
     
             -- Spike monitoring to DMA
-            M_AXIS_SPK_MON_ACLK     => M_AXIS_SPK_MON_ACLK,
-            M_AXIS_SPK_MON_ARESETN  => M_AXIS_SPK_MON_ARESETN,
-            M_AXIS_SPK_MON_TVALID   => M_AXIS_SPK_MON_TVALID,
-            M_AXIS_SPK_MON_TREADY   => M_AXIS_SPK_MON_TREADY,
-            M_AXIS_SPK_MON_TDATA    => M_AXIS_SPK_MON_TDATA,
-            M_AXIS_SPK_MON_TLAST    => M_AXIS_SPK_MON_TLAST,
+            M_AXIS_SPK2PS_ACLK     => M_AXIS_SPK2PS_ACLK,
+            M_AXIS_SPK2PS_ARESETN  => M_AXIS_SPK2PS_ARESETN,
+            M_AXIS_SPK2PS_TVALID   => M_AXIS_SPK2PS_TVALID,
+            M_AXIS_SPK2PS_TREADY   => M_AXIS_SPK2PS_TREADY,
+            M_AXIS_SPK2PS_TDATA    => M_AXIS_SPK2PS_TDATA,
+            M_AXIS_SPK2PS_TLAST    => M_AXIS_SPK2PS_TLAST,
 
             ts_pl_wr_ev_intr        => ts_pl_wr_ev_intr_dom_pl,
             
@@ -446,5 +490,53 @@ begin
             uled_uf1 => uled_uf1,
             uled_uf2 => uled_uf2
         );
+
+    ---------------------------------------------------------------------------------------
+    --
+    --  ██████  ██    ██ ████████     ███████ ██████  ███████ 
+    --  ██   ██ ██    ██    ██        ██      ██   ██ ██      
+    --  ██   ██ ██    ██    ██        ███████ ██████  ███████ 
+    --  ██   ██ ██    ██    ██             ██ ██           ██ 
+    --  ██████   ██████     ██        ███████ ██      ███████ 
+    --                                                                                    
+    -- Device under test
+    ---------------------------------------------------------------------------------------
+    dut_sps_inst: entity work.dut_sps
+    generic map(
+        FREQ_MHZ_CLK_RTL   => FREQ_MHZ_CLK_RTL,
+        TIME_STEP_US       => TIME_STEP_US_SPS,
+        PACKET_SIZE        => PACKET_SIZE_SPS,
+        DWIDTH_SPS         => DWIDTH_SPS,
+        DWIDTH_TS          => DWIDTH_TS,
+        DWIDTH_ID          => DWIDTH_ID,
+        AWIDTH_FIFO_SPS2PL => AWIDTH_FIFO_SPS2PL,
+        NB_CHANNELS        => NB_CHANNELS
+    )
+    port map(
+        clk_rtl        => clk_pl,
+        proc_reset     => srst_pl_dom_pl,
+        en_core        => en_core_dom_pl,
+        ts_tick        => ts_tick_dom_pl,
+
+        M_AXIS_ACLK    => M_AXIS_SPS2PS_ACLK,
+        M_AXIS_ARESETN => M_AXIS_SPS2PS_ARESETN,
+        M_AXIS_TVALID  => M_AXIS_SPS2PS_TVALID,
+        M_AXIS_TREADY  => M_AXIS_SPS2PS_TREADY,
+        M_AXIS_TDATA   => M_AXIS_SPS2PS_TDATA,
+        M_AXIS_TLAST   => M_AXIS_SPS2PS_TLAST,
+
+        S_AXIS_ACLK    => S_AXIS_SPS2PL_ACLK,
+        S_AXIS_ARESETN => S_AXIS_SPS2PL_ARESETN,
+        S_AXIS_TREADY  => S_AXIS_SPS2PL_TREADY,
+        S_AXIS_TDATA   => S_AXIS_SPS2PL_TDATA,
+        S_AXIS_TLAST   => S_AXIS_SPS2PL_TLAST,
+        S_AXIS_TVALID  => S_AXIS_SPS2PL_TVALID,
+
+        wr_en_sps2pl      => dma_sps2pl_wr_en,
+        wr_cnt_fifo_sps2l => dma_sps2pl_wr_cnt_fifo,
+
+        fifo_rcnt      => dma_sps2ps_fifo_rcnt,
+        intr_wr_done   => dma_sps2ps_wr_done_intr
+    );
 
 end architecture;

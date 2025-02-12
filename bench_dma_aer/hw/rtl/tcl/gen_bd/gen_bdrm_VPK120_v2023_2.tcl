@@ -528,14 +528,14 @@ proc create_root_design { parentCell } {
   set proc_sys_reset_axi [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_axi ]
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_dma_spk_M_AXIS_MM2S [get_bd_intf_pins axi_dma_spk/M_AXIS_MM2S] [get_bd_intf_pins bench_dma_aer/S_AXIS_SPK_IN]
+  connect_bd_intf_net -intf_net axi_dma_spk_M_AXIS_MM2S [get_bd_intf_pins axi_dma_spk/M_AXIS_MM2S] [get_bd_intf_pins bench_dma_aer/S_AXIS_SPK2PL]
   connect_bd_intf_net -intf_net axi_dma_spk_M_AXI_MM2S [get_bd_intf_pins axi_noc_0/S07_AXI] [get_bd_intf_pins axi_dma_spk/M_AXI_MM2S]
   connect_bd_intf_net -intf_net axi_dma_spk_M_AXI_S2MM [get_bd_intf_pins axi_dma_spk/M_AXI_S2MM] [get_bd_intf_pins axi_noc_0/S08_AXI]
   connect_bd_intf_net -intf_net axi_dma_spk_M_AXI_SG [get_bd_intf_pins axi_dma_spk/M_AXI_SG] [get_bd_intf_pins axi_noc_0/S06_AXI]
   connect_bd_intf_net -intf_net axi_noc_0_CH0_LPDDR4_0 [get_bd_intf_ports ch0_lpddr4_trip1] [get_bd_intf_pins axi_noc_0/CH0_LPDDR4_0]
   connect_bd_intf_net -intf_net axi_noc_0_CH1_LPDDR4_0 [get_bd_intf_ports ch1_lpddr4_trip1] [get_bd_intf_pins axi_noc_0/CH1_LPDDR4_0]
   connect_bd_intf_net -intf_net axi_noc_0_M00_AXI [get_bd_intf_pins smartconnect_0/S00_AXI] [get_bd_intf_pins axi_noc_0/M00_AXI]
-  connect_bd_intf_net -intf_net bench_dma_aer_M_AXIS_SPK_MON [get_bd_intf_pins bench_dma_aer/M_AXIS_SPK_MON] [get_bd_intf_pins axi_dma_spk/S_AXIS_S2MM]
+  connect_bd_intf_net -intf_net bench_dma_aer_M_AXIS_SPK2PS [get_bd_intf_pins bench_dma_aer/M_AXIS_SPK2PS] [get_bd_intf_pins axi_dma_spk/S_AXIS_S2MM]
   connect_bd_intf_net -intf_net lpddr4_clk1_1 [get_bd_intf_ports lpddr4_clk1] [get_bd_intf_pins axi_noc_0/sys_clk0]
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins smartconnect_0/M00_AXI] [get_bd_intf_pins axi_dma_spk/S_AXI_LITE]
   connect_bd_intf_net -intf_net smartconnect_0_M01_AXI [get_bd_intf_pins smartconnect_0/M01_AXI] [get_bd_intf_pins axi_gpio_ready_ev_to_ps/S_AXI]
@@ -551,22 +551,22 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net versal_cips_0_PMC_NOC_AXI_0 [get_bd_intf_pins versal_cips_0/PMC_NOC_AXI_0] [get_bd_intf_pins axi_noc_0/S05_AXI]
 
   # Create port connections
-  connect_bd_net -net Net [get_bd_pins clk_wizard/clk_axi] [get_bd_pins bench_dma_aer/clk_axi] [get_bd_pins bench_dma_aer/S_AXI_LITE_CONTROL_ACLK] [get_bd_pins bench_dma_aer/S_AXI_LITE_STATUS_ACLK] [get_bd_pins bench_dma_aer/S_AXIS_SPK_IN_ACLK] [get_bd_pins bench_dma_aer/M_AXIS_SPK_MON_ACLK] [get_bd_pins axi_gpio_ready_ev_to_ps/S_AXI_ACLK] [get_bd_pins axi_dma_spk/s_axi_lite_aclk] [get_bd_pins axi_dma_spk/m_axi_sg_aclk] [get_bd_pins axi_dma_spk/m_axi_mm2s_aclk] [get_bd_pins axi_gpio_free_slots_to_pl/S_AXI_ACLK] [get_bd_pins axi_params_dma/s_axi_aclk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins axi_dma_spk/m_axi_s2mm_aclk] [get_bd_pins axi_noc_0/aclk6] [get_bd_pins axi_noc_0/aclk7] [get_bd_pins axi_noc_0/aclk8] [get_bd_pins proc_sys_reset_axi/slowest_sync_clk]
-  connect_bd_net -net Net1 [get_bd_pins proc_sys_reset_axi/peripheral_aresetn] [get_bd_pins axi_gpio_free_slots_to_pl/S_AXI_ARESETN] [get_bd_pins axi_gpio_ready_ev_to_ps/S_AXI_ARESETN] [get_bd_pins smartconnect_0/aresetn] [get_bd_pins bench_dma_aer/M_AXIS_SPK_MON_ARESETN] [get_bd_pins bench_dma_aer/S_AXIS_SPK_IN_ARESETN] [get_bd_pins bench_dma_aer/S_AXI_LITE_STATUS_ARESETN] [get_bd_pins bench_dma_aer/S_AXI_LITE_CONTROL_ARESETN] [get_bd_pins axi_dma_spk/axi_resetn] [get_bd_pins axi_params_dma/s_axi_aresetn]
+  connect_bd_net -net Net [get_bd_pins clk_wizard/clk_axi] [get_bd_pins bench_dma_aer/clk_axi] [get_bd_pins bench_dma_aer/S_AXI_LITE_CONTROL_ACLK] [get_bd_pins bench_dma_aer/S_AXI_LITE_STATUS_ACLK] [get_bd_pins bench_dma_aer/S_AXIS_SPK2PL_ACLK] [get_bd_pins bench_dma_aer/M_AXIS_SPK2PS_ACLK] [get_bd_pins axi_gpio_ready_ev_to_ps/S_AXI_ACLK] [get_bd_pins axi_dma_spk/s_axi_lite_aclk] [get_bd_pins axi_dma_spk/m_axi_sg_aclk] [get_bd_pins axi_dma_spk/m_axi_mm2s_aclk] [get_bd_pins axi_gpio_free_slots_to_pl/S_AXI_ACLK] [get_bd_pins axi_params_dma/s_axi_aclk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins axi_dma_spk/m_axi_s2mm_aclk] [get_bd_pins axi_noc_0/aclk6] [get_bd_pins axi_noc_0/aclk7] [get_bd_pins axi_noc_0/aclk8] [get_bd_pins proc_sys_reset_axi/slowest_sync_clk]
+  connect_bd_net -net Net1 [get_bd_pins proc_sys_reset_axi/peripheral_aresetn] [get_bd_pins axi_gpio_free_slots_to_pl/S_AXI_ARESETN] [get_bd_pins axi_gpio_ready_ev_to_ps/S_AXI_ARESETN] [get_bd_pins smartconnect_0/aresetn] [get_bd_pins bench_dma_aer/M_AXIS_SPK2PS_ARESETN] [get_bd_pins bench_dma_aer/S_AXIS_SPK2PL_ARESETN] [get_bd_pins bench_dma_aer/S_AXI_LITE_STATUS_ARESETN] [get_bd_pins bench_dma_aer/S_AXI_LITE_CONTROL_ARESETN] [get_bd_pins axi_dma_spk/axi_resetn] [get_bd_pins axi_params_dma/s_axi_aresetn]
   connect_bd_net -net Net2 [get_bd_pins axi_params_dma/gpio2_io_o] [get_bd_pins axi_noc_0/S08_AXI_arprot] [get_bd_pins axi_noc_0/S08_AXI_awprot] [get_bd_pins axi_noc_0/S07_AXI_arprot] [get_bd_pins axi_noc_0/S07_AXI_awprot] [get_bd_pins axi_noc_0/S06_AXI_arprot] [get_bd_pins axi_noc_0/S06_AXI_awprot]
   connect_bd_net -net axi_dma_spk_mm2s_introut [get_bd_pins axi_dma_spk/mm2s_introut] [get_bd_pins versal_cips_0/pl_ps_irq8]
   connect_bd_net -net axi_dma_spk_s2mm_introut [get_bd_pins axi_dma_spk/s2mm_introut] [get_bd_pins versal_cips_0/pl_ps_irq9]
-  connect_bd_net -net axi_gpio_free_slots_to_pl_data_from_ps [get_bd_pins axi_gpio_free_slots_to_pl/data_from_ps] [get_bd_pins bench_dma_aer/dma_spk_i_fifo2pl_used_slots_ps]
+  connect_bd_net -net axi_gpio_free_slots_to_pl_data_from_ps [get_bd_pins axi_gpio_free_slots_to_pl/data_from_ps] [get_bd_pins bench_dma_aer/dma_spk2pl_fifo_used_slots_ps]
   connect_bd_net -net axi_gpio_free_slots_to_pl_pl_intr [get_bd_pins axi_gpio_free_slots_to_pl/pl_intr] [get_bd_pins versal_cips_0/pl_ps_irq11]
-  connect_bd_net -net axi_gpio_free_slots_to_pl_ps_intr [get_bd_pins axi_gpio_free_slots_to_pl/ps_intr] [get_bd_pins bench_dma_aer/dma_spk_i_fifo2pl_used_slots_ps_intr]
-  connect_bd_net -net axi_gpio_ready_ev_to_ps_data_from_ps [get_bd_pins axi_gpio_ready_ev_to_ps/data_from_ps] [get_bd_pins bench_dma_aer/dma_spk_o_fifo2ps_size_rd_ev_ps]
+  connect_bd_net -net axi_gpio_free_slots_to_pl_ps_intr [get_bd_pins axi_gpio_free_slots_to_pl/ps_intr] [get_bd_pins bench_dma_aer/dma_spk2pl_fifo_used_slots_ps_intr]
+  connect_bd_net -net axi_gpio_ready_ev_to_ps_data_from_ps [get_bd_pins axi_gpio_ready_ev_to_ps/data_from_ps] [get_bd_pins bench_dma_aer/dma_spk2ps_fifo_size_rd_ev_ps]
   connect_bd_net -net axi_gpio_ready_ev_to_ps_pl_intr [get_bd_pins axi_gpio_ready_ev_to_ps/pl_intr] [get_bd_pins versal_cips_0/pl_ps_irq10]
-  connect_bd_net -net axi_gpio_ready_ev_to_ps_ps_intr [get_bd_pins axi_gpio_ready_ev_to_ps/ps_intr] [get_bd_pins bench_dma_aer/dma_spk_o_fifo2ps_rd_ev_ps_intr]
+  connect_bd_net -net axi_gpio_ready_ev_to_ps_ps_intr [get_bd_pins axi_gpio_ready_ev_to_ps/ps_intr] [get_bd_pins bench_dma_aer/dma_spk2ps_fifo_rd_ev_ps_intr]
   connect_bd_net -net axi_params_dma_gpio_io_o [get_bd_pins axi_params_dma/gpio_io_o] [get_bd_pins axi_noc_0/S06_AXI_awcache] [get_bd_pins axi_noc_0/S06_AXI_arcache] [get_bd_pins axi_noc_0/S07_AXI_awcache] [get_bd_pins axi_noc_0/S07_AXI_arcache] [get_bd_pins axi_noc_0/S08_AXI_awcache] [get_bd_pins axi_noc_0/S08_AXI_arcache]
-  connect_bd_net -net bench_dma_aer_dma_spk_i_fifo2pl_free_slots_pl [get_bd_pins bench_dma_aer/dma_spk_i_fifo2pl_free_slots_pl] [get_bd_pins axi_gpio_free_slots_to_pl/data_to_ps]
-  connect_bd_net -net bench_dma_aer_dma_spk_i_fifo2pl_free_slots_pl_intr [get_bd_pins bench_dma_aer/dma_spk_i_fifo2pl_free_slots_pl_intr] [get_bd_pins axi_gpio_free_slots_to_pl/pl_irpt_trigger]
-  connect_bd_net -net bench_dma_aer_dma_spk_o_fifo2ps_size_wr_ev_pl [get_bd_pins bench_dma_aer/dma_spk_o_fifo2ps_size_wr_ev_pl] [get_bd_pins axi_gpio_ready_ev_to_ps/data_to_ps]
-  connect_bd_net -net bench_dma_aer_dma_spk_o_fifo2ps_wr_ev_pl_intr [get_bd_pins bench_dma_aer/dma_spk_o_fifo2ps_wr_ev_pl_intr] [get_bd_pins axi_gpio_ready_ev_to_ps/pl_irpt_trigger]
+  connect_bd_net -net bench_dma_aer_dma_spk2pl_fifo_free_slots_pl [get_bd_pins bench_dma_aer/dma_spk2pl_fifo_free_slots_pl] [get_bd_pins axi_gpio_free_slots_to_pl/data_to_ps]
+  connect_bd_net -net bench_dma_aer_dma_spk2pl_fifo_free_slots_pl_intr [get_bd_pins bench_dma_aer/dma_spk2pl_fifo_free_slots_pl_intr] [get_bd_pins axi_gpio_free_slots_to_pl/pl_irpt_trigger]
+  connect_bd_net -net bench_dma_aer_dma_spk2ps_fifo_size_wr_ev_pl [get_bd_pins bench_dma_aer/dma_spk2ps_fifo_size_wr_ev_pl] [get_bd_pins axi_gpio_ready_ev_to_ps/data_to_ps]
+  connect_bd_net -net bench_dma_aer_dma_spk2ps_fifo_wr_ev_pl_intr [get_bd_pins bench_dma_aer/dma_spk2ps_fifo_wr_ev_pl_intr] [get_bd_pins axi_gpio_ready_ev_to_ps/pl_irpt_trigger]
   connect_bd_net -net clk_wizard_clk_pl [get_bd_pins clk_wizard/clk_pl] [get_bd_pins bench_dma_aer/clk_pl]
   connect_bd_net -net versal_cips_0_fpd_cci_noc_axi0_clk [get_bd_pins versal_cips_0/fpd_cci_noc_axi0_clk] [get_bd_pins axi_noc_0/aclk0]
   connect_bd_net -net versal_cips_0_fpd_cci_noc_axi1_clk [get_bd_pins versal_cips_0/fpd_cci_noc_axi1_clk] [get_bd_pins axi_noc_0/aclk1]
@@ -636,10 +636,10 @@ preplace netloc axi_gpio_ready_ev_to_ps_data_from_ps 1 1 2 480 900 1120
 preplace netloc axi_gpio_ready_ev_to_ps_pl_intr 1 2 1 1190 900n
 preplace netloc axi_gpio_ready_ev_to_ps_ps_intr 1 1 2 520 1120 1120
 preplace netloc axi_params_dma_gpio_io_o 1 2 2 NJ 300 1810
-preplace netloc bench_dma_aer_dma_spk_i_fifo2pl_free_slots_pl 1 1 2 480 440 1120
-preplace netloc bench_dma_aer_dma_spk_i_fifo2pl_free_slots_pl_intr 1 1 2 490 880 1120
-preplace netloc bench_dma_aer_dma_spk_o_fifo2ps_size_wr_ev_pl 1 1 2 510 1130 1140
-preplace netloc bench_dma_aer_dma_spk_o_fifo2ps_wr_ev_pl_intr 1 1 2 500 1140 1130
+preplace netloc bench_dma_aer_dma_spk2pl_fifo_free_slots_pl 1 1 2 480 440 1120
+preplace netloc bench_dma_aer_dma_spk2pl_fifo_free_slots_pl_intr 1 1 2 490 880 1120
+preplace netloc bench_dma_aer_dma_spk2ps_fifo_size_wr_ev_pl 1 1 2 510 1130 1140
+preplace netloc bench_dma_aer_dma_spk2ps_fifo_wr_ev_pl_intr 1 1 2 500 1140 1130
 preplace netloc clk_wizard_clk_pl 1 1 1 470J 560n
 preplace netloc versal_cips_0_fpd_cci_noc_axi0_clk 1 3 1 1780 800n
 preplace netloc versal_cips_0_fpd_cci_noc_axi1_clk 1 3 1 1790 820n
@@ -656,7 +656,7 @@ preplace netloc axi_dma_spk_M_AXI_SG 1 3 1 N 480
 preplace netloc axi_noc_0_CH0_LPDDR4_0 1 4 1 NJ 660
 preplace netloc axi_noc_0_CH1_LPDDR4_0 1 4 1 NJ 680
 preplace netloc axi_noc_0_M00_AXI 1 0 5 30 10 NJ 10 NJ 10 NJ 10 2280
-preplace netloc bench_dma_aer_M_AXIS_SPK_MON 1 2 1 1130 510n
+preplace netloc bench_dma_aer_M_AXIS_SPK2PS 1 2 1 1130 510n
 preplace netloc lpddr4_clk1_1 1 0 4 NJ 910 NJ 910 1160J 690 1750J
 preplace netloc smartconnect_0_M00_AXI 1 1 2 N 430 1130J
 preplace netloc smartconnect_0_M01_AXI 1 1 1 430 450n

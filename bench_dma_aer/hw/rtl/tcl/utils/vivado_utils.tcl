@@ -105,18 +105,14 @@ namespace eval vivutils {
     }
 
     # Generate and export hardware
-    proc generate_xsa {nb_jobs} {
-        upvar dir_out dir_out
-        upvar vivado_prj_name vivado_prj_name
+    proc generate_xsa {nb_jobs vivado_prj_name dir_out} {
         run_synth ${nb_jobs}
         run_impl ${nb_jobs}
         write_hw_platform -fixed -include_bit -force -file ${dir_out}/${vivado_prj_name}/${vivado_prj_name}.xsa
     }
 
     # Generate TCL block design
-    proc update_tcl_bd {} {
-        upvar dir_out dir_out
-        upvar vivado_prj_name vivado_prj_name
+    proc update_tcl_bd {vivado_prj_name dir_out} {
         write_bd_tcl -include_layout ${main_tcl_path}/gen_bd/gen_bd_${board_name}_v${vivado_ver_uscore}.tcl -force
     }
 
@@ -177,8 +173,8 @@ namespace eval vivutils {
         puts "The following commands were added:"
         puts "  * Run synthesis:            vivutils::run_synth nb_jobs"
         puts "  * Run implementation:       vivutils::run_impl nb_jobs"
-        puts "  * Run all and export xsa:   vivutils::generate_xsa nb_jobs"
-        puts "  * Update block design tcl:  vivutils::update_tcl_bd"
+        puts "  * Run all and export xsa:   vivutils::generate_xsa nb_jobs \$vivado_prj_name \$DIR_OUTPUT"
+        puts "  * Update block design tcl:  vivutils::update_tcl_bd \$vivado_prj_name \$DIR_OUTPUT"
         puts [string repeat "=" $len_header_line]
     }
 }

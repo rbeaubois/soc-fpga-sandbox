@@ -139,8 +139,7 @@ int AxiDma::monitoring(struct sw_config swconfig){
 //       ██ ██      ██  ██ ██ ██   ██          ██ ██      ██  ██  
 //  ███████ ███████ ██   ████ ██████      ███████ ██      ██   ██ 
 //                                                                
-#define NB_FRAMES	  3
-#define CHUNK_SIZE  512
+#define NB_FRAMES 10
 void AxiDma::sendSpikesThread(void* args){
 	// Thread parameters
 	struct thread_args* args_struct = (struct thread_args*)(args);
@@ -164,26 +163,32 @@ void AxiDma::sendSpikesThread(void* args){
 		}
 		infoPrint(0, "Open save file: " + string(save_path));
 	}
-
+	
 	// Generate dummy data
-	const int transfer_size_bytes = CHUNK_SIZE*sizeof(unsigned int);
-	const unsigned int dummy_spk_stream[8] = {6666, 6,  10,  11,  12,  13,  14,  15};
-	unsigned int buf_send_spikes[CHUNK_SIZE];
-
-	// Random tstamp, spikes, nb etc....
-	for (size_t j = 0; j < CHUNK_SIZE/8; j++){
-		for (size_t k = 0; k < 8; k++){
-			buf_send_spikes[j*8 + k] = dummy_spk_stream[k];
-		}
-	}
+	constexpr unsigned int FIXED_SEED    	= 15877;
+	constexpr unsigned int MAX_EV_PER_TS	= 100;
+	constexpr unsigned int PADDING_TSTAMP	= 777000;
+	unsigned int tstamp = PADDING_TSTAMP;
+	unsigned int nb_events;
+	vector<unsigned int> channels;
+	int transfer_size_bytes = 0;
+	srand(FIXED_SEED);
 
 	// Initialize custom AXI probe
-	AxiProbeUioIntr axi_probe_free_slots_to_pl = AxiProbeUioIntr("axi_gpio_free_slots_to_pl", OFFSET_AXI_FREE_SLOTS_TO_PL, RANGE_AXI_FREE_SLOTS_TO_PL);
+	AxiProbeUioIntr axi_probe_free_slots_to_pl = AxiProbeUioIntr("axigpio_free_slots_to_pl", OFFSET_AXI_FREE_SLOTS_TO_PL, RANGE_AXI_FREE_SLOTS_TO_PL);
 	axi_probe_free_slots_to_pl.unmask_pl_interrupt();
 	axi_probe_free_slots_to_pl.clear_flag_write_to_pl(); // deassert valid write
 	
 	// Start all buffers being sent
 	while(!stop){
+		// Generate AER frames
+		tstamp++;
+		nb_events = rand() % MAX_EV_PER_TS + 1;
+		for (int i = 0; i < nb_events; ++i) {
+        	channels.push_back(std::rand() % MAX_EV_PER_TS);
+    	}
+		transfer_size_bytes = (nb_events+2)*sizeof(unsigned int);
+
 		if (end_send_spikes == 1 || buf_cnt >= NB_FRAMES)
 			break;
 
@@ -203,8 +208,9 @@ void AxiDma::sendSpikesThread(void* args){
 
 			// Save as csv alike for debug (way slower)
 			fout << "Buffer id: " << buf_cnt << endl;
-			for (size_t j = 0; j < transfer_size_bytes/sizeof(unsigned int); j++){
-				fout << buf_send_spikes[j] << ';';
+			fout << tstamp << ';' << nb_events << ";";
+			for (size_t j = 0; j < nb_events; j++){
+				fout << channels[j] << ';';
 			}
 			fout << endl << endl;
 			
@@ -227,6 +233,7 @@ void AxiDma::sendSpikesThread(void* args){
 		// Read number of free slots
 		uint32_t pl_free_slots = axi_probe_free_slots_to_pl.read_from_pl();
 		std::cout << "Free slots in PL: " << pl_free_slots << std::endl;
+		std::cout << "Start transfer : " << transfer_size_bytes/sizeof(unsigned int) << std::endl;
 
 		// Extra security to confirm PL read correct size and valid stream
 		axi_probe_free_slots_to_pl.write_to_pl(pl_free_slots); // write transfer size for PL checks
@@ -234,7 +241,11 @@ void AxiDma::sendSpikesThread(void* args){
 
 		// Pointer to current buffer
 		unsigned int* dma_buffer = (unsigned int*)(&channel_ptr->buf_ptr[buffer_id].buffer);
-		memcpy(dma_buffer, buf_send_spikes, sizeof(unsigned int) * CHUNK_SIZE);
+		dma_buffer[0] = tstamp;
+		dma_buffer[1] = nb_events;
+		for (size_t j = 0; j < nb_events; j++){
+			dma_buffer[j+2] = channels[j];
+		}
 
 		// DMA sending
 		channel_ptr->buf_ptr[buffer_id].length = transfer_size_bytes; // transfer length (in bytes)
@@ -276,6 +287,10 @@ void AxiDma::recvSpikesThread(void* args){
 	char* save_path				= args_struct->save_path;
     int r;
 
+	// Catch timeout
+	constexpr unsigned int MAX_TIMEOUT_TRY	= 1;
+	unsigned int timeout_cnt = 0;
+
 	// Internal variables
 	uint32_t val_regw_status   = 0;
 	int nb_buffer_for_transfer = 0;
@@ -287,7 +302,9 @@ void AxiDma::recvSpikesThread(void* args){
 	int buf_cnt				   = 0;
 
 	// Initialize AXI GPIO to get status of events ready and initiate a transfer
-	AxiProbeUioIntr axi_probe_ready_ev_to_ps = AxiProbeUioIntr("axi_gpio_ready_ev_to_ps", OFFSET_AXI_READY_EV_TO_PS, RANGE_AXI_READY_EV_TO_PS);
+	AxiProbeUioIntr axi_probe_ready_ev_to_ps = AxiProbeUioIntr("axigpio_ready_ev_to_ps", OFFSET_AXI_READY_EV_TO_PS, RANGE_AXI_READY_EV_TO_PS);
+	axi_probe_ready_ev_to_ps.clear_flag_write_to_pl();
+	axi_probe_ready_ev_to_ps.write_to_pl(0);
 	axi_probe_ready_ev_to_ps.unmask_pl_interrupt();
 
 	// Open file to save data
@@ -312,14 +329,13 @@ void AxiDma::recvSpikesThread(void* args){
 			r = axi_probe_ready_ev_to_ps.wait_pl_interrupt(1000);
 			if (r == uio_status::TIMEOUT){
 				statusPrint(EXIT_FAILURE, "UIO interrupt recvSpikes: timeout");
-				exit(EXIT_FAILURE);
+				timeout_cnt++;
 			}
 			else if (r == uio_status::ERROR){
 				statusPrint(EXIT_FAILURE, "UIO interrupt recvSpikes: error");
 				exit(EXIT_FAILURE);
 			}
-		} while (r != uio_status::OK);
-		axi_probe_ready_ev_to_ps.unmask_pl_interrupt();
+		} while ( !(r == uio_status::OK || r == uio_status::TIMEOUT) );
 		statusPrint(EXIT_SUCCESS, "UIO interrupt recvSpikes: catched");
 		
 		// Get the number of events available to read
@@ -335,6 +351,12 @@ void AxiDma::recvSpikesThread(void* args){
 		}
 		else{
 			nb_buffer_for_transfer = 1;
+		}
+
+		// Check if transfer size is 0
+		if (transfer_size == 0){
+			statusPrint(EXIT_FAILURE, "Attempt to transfer with size of 0 for spike recv");
+			break;
 		}
 		
 		// One buffer per transfer but buffer are circular for next transfer
@@ -360,6 +382,7 @@ void AxiDma::recvSpikesThread(void* args){
 
 		// (4) Stop/rearm data stream from PL to DMA
 		axi_probe_ready_ev_to_ps.clear_flag_write_to_pl();
+		axi_probe_ready_ev_to_ps.write_to_pl(0);
 
 		// (5) Error handling
 		switch (status){
@@ -421,8 +444,11 @@ void AxiDma::recvSpikesThread(void* args){
 		buffer_id %= RX_BUFFER_COUNT;
 		buf_cnt++;
 
+		// Unsmak interrupt for UIO driver
+		axi_probe_ready_ev_to_ps.unmask_pl_interrupt();
+
 		// If stop required, graciously exit after all transfers done
-		if (stop == 1)
+		if (stop == 1 || timeout_cnt>=MAX_TIMEOUT_TRY)
 			break;		
 	}
 

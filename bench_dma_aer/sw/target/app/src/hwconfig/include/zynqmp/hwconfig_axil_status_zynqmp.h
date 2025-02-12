@@ -5,10 +5,24 @@
 #define __HWCONFIG_AXIL_STATUS_ZYNQMP_H__
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Address mapping
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#define OFFSET_AXILITE_STATUS "0xA0030000"
+#define RANGE_AXILITE_STATUS "64K"
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Registers mapping
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Index registers written by PS
+
+// Index registers read by PS
 #define REGW_DUMMY_BASE 0
+
+// Bit labels PS write registers
 #define REGR_DUMMY_BASE_LB 0
+
+// Bit labels PS read registers
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Number of registers

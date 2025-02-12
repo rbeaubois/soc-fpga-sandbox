@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 use work.system_pkg.FPGA_ARCH;
 use work.fpga_arch_pkg.fpga_arch_t;
 
-entity farch_nat_fifo_spk_stream_to_ps is
+entity farch_fifo_cdc_dma_spk2ps is
     generic(
         DWIDTH: integer
     );
@@ -22,16 +22,16 @@ entity farch_nat_fifo_spk_stream_to_ps is
         wr_rst_busy: out std_logic;
         rd_rst_busy: out std_logic
     );
-end entity farch_nat_fifo_spk_stream_to_ps;
+end entity farch_fifo_cdc_dma_spk2ps;
 
-architecture RTL of farch_nat_fifo_spk_stream_to_ps is
+architecture RTL of farch_fifo_cdc_dma_spk2ps is
     -- Instanciation templates from IP catalog
     -- depending on FPGA architecture
 
     -- ==============================
     -- ZynqMP
     -- ==============================
-    component nat_fifo_spk_stream_to_ps_ip_zynqmp
+    component nat_fifo_cdc_dma_spk2ps_ip_zynqmp
     port (
         rst         : in std_logic;
         wr_clk      : in std_logic;
@@ -50,7 +50,7 @@ architecture RTL of farch_nat_fifo_spk_stream_to_ps is
     -- ==============================
     -- Versal
     -- ==============================
-    component nat_fifo_spk_stream_to_ps_ip_versal
+    component nat_fifo_cdc_dma_spk2ps_ip_versal
     port (
         rst             : in std_logic;
         wr_clk          : in std_logic;
@@ -66,8 +66,8 @@ architecture RTL of farch_nat_fifo_spk_stream_to_ps is
     );
     end component;
 begin
-    gen_farch_nat_fifo_spk_stream_to_ps : if FPGA_ARCH = ZYNQMP generate
-        nat_fifo_spk_stream_to_ps_ip_zynqmp_inst : nat_fifo_spk_stream_to_ps_ip_zynqmp
+    gen_farch_fifo_cdc_dma_spk2ps : if FPGA_ARCH = ZYNQMP generate
+        nat_fifo_cdc_dma_spk2ps_ip_zynqmp_inst : nat_fifo_cdc_dma_spk2ps_ip_zynqmp
         port map (
             rst         => rst,
             wr_clk      => wr_clk,
@@ -82,7 +82,7 @@ begin
             rd_rst_busy => rd_rst_busy
         );
     elsif FPGA_ARCH = VERSAL generate
-        nat_fifo_spk_stream_to_ps_ip_versal_inst : nat_fifo_spk_stream_to_ps_ip_versal
+        nat_fifo_cdc_dma_spk2ps_ip_versal_inst : nat_fifo_cdc_dma_spk2ps_ip_versal
         port map (
             rst             => rst,
             wr_clk          => wr_clk,
@@ -96,5 +96,5 @@ begin
             full            => full,
             empty           => empty
         );
-    end generate gen_farch_nat_fifo_spk_stream_to_ps;
+    end generate gen_farch_fifo_cdc_dma_spk2ps;
 end architecture RTL;

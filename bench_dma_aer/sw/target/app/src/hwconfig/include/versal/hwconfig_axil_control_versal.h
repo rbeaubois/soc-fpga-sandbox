@@ -5,6 +5,12 @@
 #define __HWCONFIG_AXIL_CONTROL_VERSAL_H__
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Address mapping
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#define OFFSET_AXILITE_CONTROL "0xA0020000"
+#define RANGE_AXILITE_CONTROL "64K"
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Registers mapping
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
