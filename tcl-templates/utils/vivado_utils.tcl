@@ -10,6 +10,10 @@
 # 
 # @details 
 # > **02 Feb 2025** : file creation (RB)
+# > **02 Feb 2025** : add project name in bd tcl generation scripts, add handling when no src files (RB)
+# > **13 Feb 2025** : add static/partial metadata, overwrite existing project by default, fix VHDL 2008 set when no sources (RB)
+
+# TODO: add link for block design name
 
 namespace eval vivutils {
     # Create Vivado project
@@ -31,7 +35,7 @@ namespace eval vivutils {
         # Create and setup project
         set vivado_ver_uscore [string map {"." "_"} $vivado_ver]
         set vivado_prj_name ${prj_name}_${board_name}_v${vivado_ver_uscore}
-        create_project ${vivado_prj_name} ${dir_out}/${vivado_prj_name} -part $part
+        create_project ${vivado_prj_name} ${dir_out}/${vivado_prj_name} -part $part -force
         set_property board_part $board_part [current_project]
         if {[string length $connections]} {
             set_property board_connections $connections [current_project]
@@ -40,13 +44,25 @@ namespace eval vivutils {
         set_property simulator_language VHDL [current_project]
         set bd_design_name bd
 
+        # Enable static/partial images configuration
+        set_param bitstream.enableMetaData 1
+        set_param platform.enableStaticAndPartitionXSAs 1
+
         # Find and add all (vhdl) files in folder
         set design_src_files [futils::find_files ${dir_src}/hdl *.vhd]
-        add_files -fileset sources_1 ${design_src_files}
+        if {[llength $design_src_files] > 0} {
+            add_files -fileset sources_1 ${design_src_files}
+        } else {
+            puts "Warning!!! HDL sources not found."
+        }
 
         # Find and add all testbench files in folder
         set sim_src_files [futils::find_files ${dir_src}/tb *.vhd]
-        add_files -fileset sim_1 ${sim_src_files}
+        if {[llength $sim_src_files] > 0} {
+            add_files -fileset sim_1 ${sim_src_files}
+        } else {
+            puts "Warning!!! HDL testbenches sources not found."
+        }
 
         # Find and add matching constraint file
         set constrs_src_file ${dir_src}/xdc/${board_name}_${prj_name}.xdc
@@ -57,19 +73,23 @@ namespace eval vivutils {
         }
 
         # Set all sources except top to VHDL 2008
-        set_property file_type {VHDL 2008} [get_files -filter {FILE_TYPE == VHDL}]
+        if {([llength $design_src_files] + [llength $sim_src_files]) > 0} {
+            set_property file_type {VHDL 2008} [get_files -filter {FILE_TYPE == VHDL}]
+        }
         if {[file exists [get_files ${top_file}.vhd]]} {
             set_property file_type {VHDL} [get_files ${top_file}.vhd]
         } else {
             puts "Warning!!! VHDL Top file script not found."
         }
         # Additional files to keep in VHDL
-        foreach vhdl_file $extra_vhdl_std93_files {
-            # Check if the file exists
-            puts "$vhdl_file"
-            if {[file exists [get_files ${vhdl_file}.vhd]]} {
-                # Set the file type property if the file exists
-                set_property file_type {VHDL} [get_files ${vhdl_file}.vhd]
+        if {[llength $extra_vhdl_std93_files] > 0} {
+            foreach vhdl_file $extra_vhdl_std93_files {
+                # Check if the file exists
+                puts "$vhdl_file"
+                if {[file exists [get_files ${vhdl_file}.vhd]]} {
+                    # Set the file type property if the file exists
+                    set_property file_type {VHDL} [get_files ${vhdl_file}.vhd]
+                }
             }
         }
 
@@ -83,7 +103,7 @@ namespace eval vivutils {
         }
 
         # Generate block design
-        set gen_bd_tcl_script ${main_tcl_path}/gen_bd/gen_bd_${board_name}_v${vivado_ver_uscore}.tcl
+        set gen_bd_tcl_script ${main_tcl_path}/gen_bd/gen_bd_${prj_name}_${board_name}_v${vivado_ver_uscore}.tcl
         puts $gen_bd_tcl_script
         if {[file exists $gen_bd_tcl_script]} {
             # Create block design from tcl
@@ -122,6 +142,14 @@ namespace eval vivutils {
         run_synth ${nb_jobs}
         run_impl ${nb_jobs}
         write_hw_platform -fixed -include_bit -force -file ${dir_out}/${vivado_prj_name}/${vivado_prj_name}.xsa
+    }
+
+    # Generate and export hardware
+    proc generate_static_xsa {nb_jobs vivado_prj_name dir_out} {
+        run_synth ${nb_jobs}
+        run_impl ${nb_jobs}
+        open_run impl_1
+        write_hw_platform -fixed -include_bit -static -force -file ${dir_out}/${vivado_prj_name}/${vivado_prj_name}.xsa
     }
 
     # Generate TCL block design
