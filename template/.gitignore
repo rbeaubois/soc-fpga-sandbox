@@ -1,0 +1,19 @@
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore editor and IDE files
+.vscode/
+.idea/
+
+# Ignore virtual environments
+venv/
+.env/
+
+# Ignore log files
+*.log
+*.jou
+
+# Ignore build
+build/

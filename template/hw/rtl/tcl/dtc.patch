@@ -1,0 +1,11 @@
+--- pl.dtsi	2026-02-24 22:37:14.405641447 +0100
++++ patch_pl.dtsi	2026-02-24 22:37:50.666003880 +0100
+@@ -40,7 +40,7 @@
+ 		#gpio-cells = <2>;
+ 		clock-names = "s_axi_aclk";
+ 		clocks = <&misc_clk_0>;
+-		compatible = "xlnx,axi-gpio-2.0", "xlnx,xps-gpio-1.00.a";
++		compatible = "generic-uio";
+ 		gpio-controller ;
+ 		reg = <0x0 0xa0000000 0x0 0x1000>;
+ 		xlnx,all-inputs = <0x1>;
